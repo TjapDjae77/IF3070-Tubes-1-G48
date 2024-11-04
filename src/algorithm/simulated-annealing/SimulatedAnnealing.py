@@ -1,5 +1,8 @@
 from cube.magic_cube import MagicCube
 from cube.objective_function import ObjectiveFunction
+from cube.neighbor_state import NeighborState
+import math
+import random
 
 
 class SimulatedAnnealing:
