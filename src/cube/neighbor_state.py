@@ -11,22 +11,16 @@ class NeighborState:
     def generate_neighbor(self):
         neighbor = self.magic_cube.cube.copy()
 
+        size = self.magic_cube.size
+        
         # Mencari random neighbor
-        n1 = (random.randint(0, self.magic_cube.size - 1 ), 
-              random.randint(0, self.magic_cube.size - 1), 
-              random.randint(0, self.magic_cube.size - 1))
-        
-        n2 = (random.randint(0, self.magic_cube.size -1 ),
-              random.randint(0, self.magic_cube.size - 1),
-              random.randint(0, self.magic_cube.size - 1))
-        
+        i1,j1,k1 = random.randint(0, size - 1), random.randint(0, size - 1), random.randint(0, size - 1)
+        i2, j2, k2 = random.randint(0, size - 1), random.randint(0, size - 1), random.randint(0, size - 1)
         # Memastikan n1 dan n2 tidak sama
-        while n1 == n2 :
-            n2 = (random.randint(0, self.magic_cube.size -1 ),
-                  random.randint(0, self.magic_cube.size - 1), 
-                  random.randint(0, self.magic_cube.size - 1))
-            
+        while (i1, j1, k1) == (i2, j2, k2):
+            i2, j2, k2 = random.randint(0, size - 1), random.randint(0, size - 1), random.randint(0, size - 1)
+
         # Menukar neighbor 
-        neighbor[n1], neighbor[n2] = neighbor[n1], neighbor[n2] 
+        neighbor[i1, j1, k1], neighbor[i2, j2, k2] = neighbor[i2, j2, k2], neighbor[i1, j1, k1] 
 
         return neighbor
