@@ -31,12 +31,12 @@ class GeneticAlgorithm:
         pick = random.uniform(0, total_fitness)
         current = 0
         for cube, fitness in self.fitness_scores:
-            current += 1 / (fitness + 1)
+            current += total_fitness - fitness
             if current > pick:
                 return cube
 
     def selection(self):
-        total_fitness = sum(1/(score[1] + 1) for score in self.fitness_scores)
+        total_fitness = sum(score[1] for score in self.fitness_scores)
         parent1 = self.select_one(total_fitness)
         parent2 = self.select_one(total_fitness)
         while parent1 ==  parent2:
@@ -44,44 +44,58 @@ class GeneticAlgorithm:
 
         return parent1, parent2
 
-    def layer_crossover(self, parent1, parent2):
-        offspring_cube = np.zeros_like(parent1.cube)
+    def layer_crossover_pair(self, parent1, parent2):
+        offspring1_cube = np.zeros_like(parent1.cube)
+        offspring2_cube = np.zeros_like(parent2.cube)
 
         for i in range(parent1.size):
             if (i % 2 == 0):
-                offspring_cube[i] = parent1.cube[i]
+                offspring1_cube[i] = parent1.cube[i]
+                offspring2_cube[i] = parent2.cube[i]
             else:
-                offspring_cube[i] = parent2.cube[i]
+                offspring1_cube[i] = parent2.cube[i]
+                offspring2_cube[i] = parent1.cube[i]
 
-        offspring = MagicCube(size=parent1.size)
-        offspring.cube = offspring_cube
-        return offspring
+        offspring1 = MagicCube(size=parent1.size)
+        offspring2 = MagicCube(size=parent2.size)
+        offspring1.cube = offspring1_cube
+        offspring2.cube = offspring2_cube
+        return offspring1, offspring2
 
-    def uniform_crossover(self, parent1, parent2):
-        offspring_cube = np.zeros_like(parent1.cube)
+    def uniform_crossover_pair(self, parent1, parent2):
+        offspring1_cube = np.zeros_like(parent1.cube)
+        offspring2_cube = np.zeros_like(parent2.cube)
 
         for i in range(parent1.size):
             for j in range(parent1.size):
                 for k in range(parent1.size):
                     if (random.random() < 0.5):
-                        offspring_cube[i, j, k] = parent1.cube[i, j, k]
+                        offspring1_cube[i, j, k] = parent1.cube[i, j, k]
+                        offspring2_cube[i, j, k] = parent2.cube[i, j, k]
                     else:
-                        offspring_cube[i, j, k] = parent2.cube[i, j, k]
+                        offspring1_cube[i, j, k] = parent2.cube[i, j, k]
+                        offspring2_cube[i, j, k] = parent1.cube[i, j, k]
         
-        offspring = MagicCube(size=parent1.size)
-        offspring.cube = offspring_cube
-        return offspring
+        offspring1 = MagicCube(size=parent1.size)
+        offspring2 = MagicCube(size=parent2.size)
+        offspring1.cube = offspring1_cube
+        offspring2.cube = offspring2_cube
+        return offspring1, offspring2
     
-    def adaptive_crossover(self, parent1, parent2, generation, max_generations):
+    def adaptive_crossover_pair(self, parent1, parent2, generation, max_generations):
         if (generation < (max_generations * 0.3)):
-            return self.uniform_crossover(parent1, parent2)
+            print("TERPILIH UNIFORM BAGIAN 1")
+            return self.uniform_crossover_pair(parent1, parent2)
         elif (generation  < (max_generations * 0.7)):
             if (random.random() < 0.5):
-                return self.uniform_crossover(parent1, parent2)
+                print("TERPILIH UNIFORM BAGIAN 2")
+                return self.uniform_crossover_pair(parent1, parent2)
             else:
-                return self.layer_crossover(parent1, parent2)
+                print("TERPILIH LAYER BAGIAN 2")
+                return self.layer_crossover_pair(parent1, parent2)
         else:
-            return self.layer_crossover(parent1, parent2)
+            print("TERPILIH LAYER BAGIAN 3")
+            return self.layer_crossover_pair(parent1, parent2)
 
 
 
