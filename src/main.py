@@ -4,94 +4,73 @@ from algorithm.hill_climbing.SteepestAscent import SteepestAscent
 
 
 
+def main_menu():
+    while True:
+        # Tampilkan menu opsi
+        print("\nPilih algoritma yang ingin dicoba:")
+        print("1. Steepest Ascent Hill-Climbing")
+        print("2. Hill-Climbing with Sideways Move")
+        print("3. Random Restart Hill-Climbing")
+        print("4. Stochastic Hill-Climbing")
+        print("5. Simulated Annealing")
+        print("6. Genetic Algorithm")
+        print("7. Keluar dari program")
+
+        # Menerima input opsi dari pengguna
+        pilihan = input("Masukkan nomor opsi (1-7): ")
+
+        # Menentukan aksi berdasarkan input
+        if (pilihan == '1'):
+            print("\nAlgoritma Steepest Ascent Hill-Climbing belum terimplementasi.")
+        elif (pilihan == '2'):
+            print("\nAlgoritma Hill Climbing with Sideways Move belum terimplementasi.")
+        elif (pilihan == '3'):
+            print("\nAlgoritma Random Restart Hill-Climbing belum terimplementasi.")
+        elif (pilihan == '4'):
+            print("\nAlgoritma Stochastic Hill-Climbing belum terimplementasi.")
+        elif (pilihan == '5'):
+            #implementasi fungsi run untuk simmulated annealing
+            print("\nAlgoritma Simulated Annealing belum terimplementasi.")
+        elif (pilihan == '6'):
+            print("\nAnda memilih Genetic Algorithm.")
+            try:
+                # Menerima input variasi jumlah populasi
+                print("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100)")
+                population_input = input("Variasi populasi (pisahkan dengan spasi): ").split()
+                populations = [int(x) for x in population_input]
+
+                # Menerima input variasi jumlah iterasi
+                print("\nMasukkan 3 variasi jumlah iterasi (misalnya: 100 200 300)")
+                iterations_input = input("Variasi iterasi (pisahkan dengan spasi): ").split()
+                iterations = [int(x) for x in iterations_input]
+
+                # Jalankan pengujian untuk variasi jumlah iterasi dengan populasi tetap
+                print("\nMenjalankan pengujian dengan 3 variasi jumlah populasi dan 3 variasi jumlah iterasi:")
+                for pop_size in populations:
+                    for iterasi in iterations:
+                        print(f"\nMenjalankan GA dengan {pop_size} populasi dan {iterasi} iterasi:")
+
+                        # Ulangi setiap kombinasi sebanyak 3 kali
+                        for i in range(3):
+                            print(f"\nUji ke-{i + 1} untuk populasi {pop_size} dan iterasi {iterasi}:")
+                            GeneticAlgorithm.run_genetic_algorithm(pop_size, iterasi, 0.05)
+
+            except ValueError:
+                print("Input harus berupa angka yang valid!")
+
+        elif (pilihan == '7'):
+            print("\nTerima kasih telah menggunakan program ini. Sampai jumpa!")
+            break
+        else:
+            print("\nPilihan tidak valid. Silakan masukkan nomor opsi yang benar (1-7).")
+
+# Panggilan fungsi main
 if __name__ == "__main__":
-    population_size = 5
-    max_generations = 5
-    mutation_rate = 0.05
+    main_menu()
+    
 
-    ga = GeneticAlgorithm(population_size, max_generations, mutation_rate)
+    print("=================END==================")
 
-    # fitness_scores = ga.evaluate_population()
-
-    ga.evaluate_population()
-
-    print("Initial Fitness Scores for Entire Population:")
-    for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
-        print(f"Cube {i+1} Fitness Score: {fitness_score}")
-        # cube.display()
-
-    for generation in range(max_generations):
-        new_population = []
-        
-        print(f"\n--- Generation {generation} ---")
-        for _ in range(population_size // 2):  # Lakukan crossover hingga populasi penuh
-            # Seleksi untuk mendapatkan dua orang tua
-            parent1, parent2 = ga.selection()
-
-            # Cetak fitness score dari orang tua yang dipilih (opsional untuk debugging)
-            print("\nParent 1 Fitness Score:", ObjectiveFunction(parent1).calculate())
-            # parent1.display()
-            print("Parent 2 Fitness Score:", ObjectiveFunction(parent2).calculate())
-            # parent2.display()
-            
-            # Menghasilkan keturunan melalui adaptive crossover
-            offspring1, offspring2 = ga.adaptive_crossover_pair(parent1, parent2, generation, max_generations)
-
-            print("SEBELUM MUTATION")
-            print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
-            
-            print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
-
-            # Melakukan adaptive mutation pada offspring
-            offspring1 = ga.adaptive_mutation(offspring1, generation, max_generations)
-            offspring2 = ga.adaptive_mutation(offspring2, generation, max_generations)
-            
-            print("SETELAH MUTATION")
-            print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
-            # offspring1.display()
-            print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
-            # offspring2.display()
-
-            # Tambahkan offspring ke populasi baru
-            new_population.extend([offspring1, offspring2])
-
-        if len(new_population) < population_size:
-            parent1, parent2 = ga.selection()
-            print("\nParent 1 Fitness Score (extra):", ObjectiveFunction(parent1).calculate())
-            # parent1.display()
-            print("Parent 2 Fitness Score (extra):", ObjectiveFunction(parent2).calculate())
-            # parent2.display()
-            extra_offspring, _ = ga.adaptive_crossover_pair(parent1, parent2, generation, max_generations)
-            print("SEBELUM MUTATION")
-            print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
-            extra_offspring = ga.adaptive_mutation(extra_offspring, generation, max_generations)
-            print("SETELAH MUTATION")
-            print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
-            # extra_offspring.display()
-            new_population.append(extra_offspring)
-
-        # Ganti populasi lama dengan populasi baru
-        ga.population = new_population
-        
-        # Evaluasi populasi baru
-        ga.evaluate_population()
-        
-        # Cetak fitness score dari generasi baru
-        print("\nFitness Scores for New Population:")
-        for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
-            print(f"Cube {i+1} Fitness Score: {fitness_score}")
-
-    # print("Initial Population Fitness Scores:")
-    # for i, (cube, fitness_score) in enumerate(fitness_scores):
-    #     print(f"Cube {i+1} Fitness Score: {fitness_score}")
-    #     cube.display()
-    #     print("\n")
-
-    print("===================================")
-    # print("\nFinal Population after Evolution:")
-    # for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
-    #     print(f"Cube {i+1} Fitness Score: {fitness_score}")
-    #     cube.display()
 
     # # Initialize the Magic Cube
     # initial_cube = MagicCube()
