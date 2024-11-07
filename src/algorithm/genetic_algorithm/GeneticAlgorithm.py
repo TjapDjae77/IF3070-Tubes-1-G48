@@ -2,7 +2,7 @@ import numpy as np
 import random
 from cube.magic_cube import MagicCube
 from cube.objective_function import ObjectiveFunction
-
+from cube.neighbor_state import NeighborState
 
 class GeneticAlgorithm:
     def __init__(self, population_size, max_generations, mutation_rate):
@@ -96,6 +96,34 @@ class GeneticAlgorithm:
         else:
             print("TERPILIH LAYER BAGIAN 3")
             return self.layer_crossover_pair(parent1, parent2)
+        
+    def swap_mutation(self, magic_cube):
+        neighbor_state = NeighborState(magic_cube)
+        return neighbor_state.generate_neighbor()
 
-
-
+    def inversion_mutation(self, magic_cube):
+        i = random.randint(0, magic_cube.size - 1)
+        j = random.randint(0, magic_cube.size - 1)
+        magic_cube.cube[i, j, :] = magic_cube.cube[i, j, ::-1]
+        print(f"Inverted row at layer {i}, row {j}")
+        return magic_cube
+    
+    def scramble_mutation(self, magic_cube):
+        layer_index = random.randint(0, magic_cube.size - 1)
+        flat_layer = magic_cube.cube[layer_index].flatten()
+        np.random.shuffle(flat_layer)
+        magic_cube.cube[layer_index] = flat_layer.reshape(magic_cube.size, magic_cube.size)
+        print(f"Scrambled layer at index {layer_index}")
+        return magic_cube
+    
+    def adaptive_mutation(self, magic_cube, generation, max_generations):
+        if (random.random() >= self.mutation_rate):
+            return magic_cube
+        
+        if (generation < (max_generations * 0.3)):
+            return self.scramble_mutation(magic_cube)
+        elif (generation < (max_generations * 0.7)):
+            return self.inversion_mutation(magic_cube)
+        else:
+            print("SWAP MUTATION")
+            return self.swap_mutation(magic_cube)

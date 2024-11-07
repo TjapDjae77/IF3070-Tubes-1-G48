@@ -36,7 +36,17 @@ if __name__ == "__main__":
             
             # Menghasilkan keturunan melalui adaptive crossover
             offspring1, offspring2 = ga.adaptive_crossover_pair(parent1, parent2, generation, max_generations)
+
+            print("SEBELUM MUTATION")
+            print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
             
+            print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
+
+            # Melakukan adaptive mutation pada offspring
+            offspring1 = ga.adaptive_mutation(offspring1, generation, max_generations)
+            offspring2 = ga.adaptive_mutation(offspring2, generation, max_generations)
+            
+            print("SETELAH MUTATION")
             print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
             # offspring1.display()
             print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
@@ -52,6 +62,10 @@ if __name__ == "__main__":
             print("Parent 2 Fitness Score (extra):", ObjectiveFunction(parent2).calculate())
             # parent2.display()
             extra_offspring, _ = ga.adaptive_crossover_pair(parent1, parent2, generation, max_generations)
+            print("SEBELUM MUTATION")
+            print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
+            extra_offspring = ga.adaptive_mutation(extra_offspring, generation, max_generations)
+            print("SETELAH MUTATION")
             print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
             # extra_offspring.display()
             new_population.append(extra_offspring)
