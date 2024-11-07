@@ -3,9 +3,10 @@ from cube.objective_function import ObjectiveFunction
 from cube.neighbor_state import NeighborState
 
 
-class SteepestAscent:
-    def __init__(self, magic_cube):
-        self.current_state = magic_cube
+class RandomRestart:
+    def __init__(self, max_restarts=10):
+        self.max_restarts = max_restarts
+        self.best_value
 
     def searchbestNeighbor(self):
         best_neighbor_value = 999999
@@ -50,4 +51,6 @@ class SteepestAscent:
                 print()
                 break
 
-        return self.current_state
+    def randomRestart(self):
+        best_value = 999999
+        best_state = None
