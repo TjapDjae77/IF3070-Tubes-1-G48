@@ -85,10 +85,10 @@ class GeneticAlgorithm:
         return offspring1, offspring2
     
     def adaptive_crossover_pair(self, parent1, parent2, generation, max_iteration):
-        if (generation < (max_iteration * 0.3)):
+        if (generation < (max_iteration * 0.7)):
             return self.uniform_crossover_pair(parent1, parent2)
-        elif (generation  < (max_iteration * 0.7)):
-            if (random.random() < 0.5):
+        elif (generation  < (max_iteration * 0.9)):
+            if (random.random() < 0.8):
                 return self.uniform_crossover_pair(parent1, parent2)
             else:
                 return self.layer_crossover_pair(parent1, parent2)
@@ -115,13 +115,26 @@ class GeneticAlgorithm:
         return magic_cube
     
     def adaptive_mutation(self, magic_cube, generation, max_iteration):
+        generation_progress = generation / max_iteration
+        # Atur mutation rate adaptif berdasarkan progres generasi
+        if generation_progress < 0.4:
+            # Di awal hingga pertengahan, gunakan mutation rate dasar
+            self.mutation_rate = self.mutation_rate * 1.15
+        elif 0.4 <= generation_progress < 0.8:
+            # Di pertengahan generasi, tingkatkan mutation rate untuk mendorong eksplorasi
+            self.mutation_rate = self.mutation_rate * 1.05
+        else:
+            # Di akhir generasi, turunkan mutation rate untuk mengeksploitasi solusi terbaik
+            self.mutation_rate = self.mutation_rate * 0.8
+
+
         if (random.random() >= self.mutation_rate):
             return magic_cube
         
-        if (generation < (max_iteration * 0.3)):
+        if (generation < (max_iteration * 0.5)):
             return self.scramble_mutation(magic_cube)
-        elif (generation < (max_iteration * 0.7)):
-            return self.inversion_mutation(magic_cube)
+        elif (generation < (max_iteration * 0.8)):
+            return self.swap_mutation(magic_cube)
         else:
             # print("SWAP MUTATION")
             return self.swap_mutation(magic_cube)
@@ -213,14 +226,37 @@ class GeneticAlgorithm:
             print(f"Cube {i+1} Fitness Score: {fitness_score}")
 
         # Plot nilai *objective function* maksimum dan rata-rata
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(max_iteration), max_scores_per_iteration, label='Nilai Maksimum', color='red')
-        plt.plot(range(max_iteration), avg_scores_per_iteration, label='Nilai Rata-rata', color='blue')
-        plt.xlabel('Iterasi')
-        plt.ylabel('Nilai Objective Function')
-        plt.title('Perkembangan Nilai Objective Function per Iterasi')
-        plt.legend()
-        plt.grid(True)
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(range(max_iteration), max_scores_per_iteration, label='Nilai Maksimum', color='red')
+        # plt.plot(range(max_iteration), avg_scores_per_iteration, label='Nilai Rata-rata', color='blue')
+        # plt.xlabel('Iterasi')
+        # plt.ylabel('Nilai Objective Function')
+        # plt.title('Perkembangan Nilai Objective Function per Iterasi')
+        # plt.legend()
+        # plt.grid(True)
+        # plt.show()
+
+        return max_scores_per_iteration, avg_scores_per_iteration, duration
+    
+    @staticmethod
+    def plot_multiple_runs(results, max_iteration, title="Perkembangan Nilai Objective Function"):
+        iteration = range(max_iteration)
+        num_runs = len(results)
+
+        fig, axes = plt.subplots(1, num_runs, figsize=(18, 6), sharey=True)
+        fig.suptitle(title)
+
+        for idx, (max_scores, avg_scores, run_label) in enumerate(results):
+            ax = axes[idx]
+            ax.plot(iteration, max_scores, label='Maksimum', linestyle='--', color='red')
+            ax.plot(iteration, avg_scores, label='Rata-rata', color='blue')
+            ax.set_title(run_label)
+            ax.set_xlabel('Generasi')
+            if idx == 0:
+                ax.set_ylabel('Nilai Objective Function')
+            ax.grid(True, linestyle='--', linewidth=0.5)
+            ax.legend()
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
         plt.show()
 
-        return ga.fitness_scores

@@ -49,12 +49,20 @@ def main_menu():
                 for pop_size in populations:
                     for iterasi in iterations:
                         print(f"\nMenjalankan GA dengan {pop_size} populasi dan {iterasi} iterasi:")
+                        run_results = []
 
                         # Ulangi setiap kombinasi sebanyak 3 kali
                         for i in range(3):
-                            print(f"\nUji ke-{i + 1} untuk populasi {pop_size} dan iterasi {iterasi}:")
-                            GeneticAlgorithm.run_genetic_algorithm(pop_size, iterasi, 0.05)
+                            max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(
+                                pop_size, iterasi, 0.05
+                            )
+                            run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
 
+                        GeneticAlgorithm.plot_multiple_runs(
+                            run_results, 
+                            max_iteration=iterasi,
+                            title=f'Populasi {pop_size} dan Iterasi {iterasi}'
+                        )
             except ValueError:
                 print("Input harus berupa angka yang valid!")
 
