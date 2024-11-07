@@ -1,5 +1,6 @@
 from algorithm.genetic_algorithm.GeneticAlgorithm import GeneticAlgorithm
 from cube.objective_function import ObjectiveFunction
+from algorithm.hill_climbing.SteepestAscent import SteepestAscent
 
 
 
@@ -78,12 +79,21 @@ if __name__ == "__main__":
     #     print(f"Cube {i+1} Fitness Score: {fitness_score}")
     #     cube.display()
 
-        
+    # # Initialize the Magic Cube
+    # initial_cube = MagicCube()
 
+    # # Display the initial state
+    # print("Initial Cube State:")
+    # initial_cube.display()
+    # initial_score = ObjectiveFunction(initial_cube).calculate()
+    # print("Initial Score:", initial_score)
 
-    
-    
+    # # Run Steepest Ascent Hill Climbing with the initial cube
+    # hc = SteepestAscent(initial_cube)
+    # final_state = hc.evaluateNeighbor()
+    # final_score = ObjectiveFunction(final_state).calculate()
 
-
-
-    
+    # # Display final state and score
+    # print("\nFinal Cube State After Steepest Ascent Hill Climbing:")
+    # final_state.display()
+    # print("Final Score:", final_score)

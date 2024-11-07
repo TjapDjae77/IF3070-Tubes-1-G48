@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from cube.magic_cube import MagicCube
 
 class NeighborState:
     def __init__(self, magic_cube):
@@ -10,7 +11,6 @@ class NeighborState:
     # Melakukan pencarian neighbor random
     def generate_neighbor(self):
         neighbor = self.magic_cube.cube.copy()
-
         size = self.magic_cube.size
         
         # Mencari random neighbor
@@ -23,4 +23,7 @@ class NeighborState:
         # Menukar neighbor 
         neighbor[i1, j1, k1], neighbor[i2, j2, k2] = neighbor[i2, j2, k2], neighbor[i1, j1, k1] 
 
-        return neighbor
+        new_magic_cube = MagicCube(size=self.magic_cube.size)
+        new_magic_cube.cube = neighbor
+        
+        return new_magic_cube
