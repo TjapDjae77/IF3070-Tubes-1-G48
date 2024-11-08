@@ -1,7 +1,7 @@
 from algorithm.genetic_algorithm.GeneticAlgorithm import GeneticAlgorithm
 from cube.objective_function import ObjectiveFunction
 from algorithm.hill_climbing.SteepestAscent import SteepestAscent
-
+from algorithm.simulated_annealing.SimulatedAnnealing import SimulatedAnnealing
 
 
 def main_menu():
@@ -29,8 +29,9 @@ def main_menu():
         elif (pilihan == '4'):
             print("\nAlgoritma Stochastic Hill-Climbing belum terimplementasi.")
         elif (pilihan == '5'):
-            #implementasi fungsi run untuk simmulated annealing
-            print("\nAlgoritma Simulated Annealing belum terimplementasi.")
+            print("\nFinal cube state: ")           
+            sa = SimulatedAnnealing(starting_tem=5000, cooling_rate=0.99, minimum_tem=0.01) 
+            sa.simulatedannealing()  
         elif (pilihan == '6'):
             print("\nAnda memilih Genetic Algorithm.")
             try:
@@ -39,7 +40,7 @@ def main_menu():
                 population_input = input("Variasi populasi (pisahkan dengan spasi): ").split()
                 populations = [int(x) for x in population_input]
 
-                # Menerima input variasi jumlah iterasi
+                # Menerima input variasi jumlah iterasi5
                 print("\nMasukkan 3 variasi jumlah iterasi (misalnya: 100 200 300)")
                 iterations_input = input("Variasi iterasi (pisahkan dengan spasi): ").split()
                 iterations = [int(x) for x in iterations_input]
