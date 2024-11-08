@@ -33,53 +33,19 @@ def main_menu():
             print("\nAlgoritma Simulated Annealing belum terimplementasi.")
         elif (pilihan == '6'):
             print("\nAnda memilih Genetic Algorithm.")
-            try:
-                print("\n===Pengujian dengan variasi jumlah populasi dan iterasi tetap===")
-                # Menerima input variasi jumlah populasi
-                print("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100)")
-                population_input = input("Variasi populasi (pisahkan dengan spasi): ").split()
-                populations = [int(x) for x in population_input]
 
-                iteration_fixed = int(input("Masukkan jumlah iterasi tetap (contoh: 100): "))
+            print("\n===Pengujian dengan variasi jumlah populasi dan iterasi tetap===")
+            populations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100): ", min_value=2)
+            iteration_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah iterasi tetap (contoh: 100): ", min_value=1)[0]
 
-                for pop_size in populations:
-                    run_results = []
+            GeneticAlgorithm.run_multiple_tests(populations, [iteration_fixed], is_fixed_iteration=True)
 
-                    print(f"\nMenjalankan GA dengan populasi {pop_size} dan iterasi {iteration_fixed}:")
-                    for i in range(3):  # Jalankan 3 kali untuk setiap variasi
-                        print(f"\nUji ke-{i + 1} untuk populasi {pop_size} dan iterasi {iteration_fixed}:")
-                        max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(pop_size, iteration_fixed, 0.05)
-                        run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
-
-                    GeneticAlgorithm.plot_multiple_runs(
-                            run_results, 
-                            max_iteration=iteration_fixed,
-                            title=f'Populasi {pop_size} dan Iterasi {iteration_fixed}'
-                        )
+            print("\n===Pengujian dengan variasi jumlah iterasi dan populasi tetap===")
+            iterations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah iterasi (contoh: 50 100 150): ", min_value=1)
+            population_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah populasi tetap (contoh: 20): ", min_value=2)[0]
+            
+            GeneticAlgorithm.run_multiple_tests([population_fixed], iterations, is_fixed_iteration=False)
                 
-                print("\n===Pengujian dengan variasi jumlah iterasi dan populasi tetap===")
-                print("Masukkan 3 variasi jumlah iterasi (contoh: 50 100 150):")
-                iterations_input = input("Variasi iterasi (pisahkan dengan spasi): ").split()
-                iterations = [int(x) for x in iterations_input]
-
-                population_fixed = int(input("Masukkan jumlah populasi tetap (contoh: 20): "))
-                for iteration_count in iterations:
-                    run_results = []
-
-                    print(f"\nMenjalankan GA dengan populasi {population_fixed} dan iterasi {iteration_count}:")
-                    for i in range(3):  # Jalankan 3 kali untuk setiap variasi
-                        print(f"\nUji ke-{i + 1} untuk populasi {population_fixed} dan iterasi {iteration_count}:")
-                        max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(population_fixed, iteration_count, 0.05)
-                        run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
-                    
-                    GeneticAlgorithm.plot_multiple_runs(
-                            run_results, 
-                            max_iteration=iteration_count,
-                            title=f'Populasi {population_fixed} dan Iterasi {iteration_count}'
-                        )
-            except ValueError:
-                print("Input harus berupa angka yang valid!")
-
         elif (pilihan == '7'):
             print("\nTerima kasih telah menggunakan program ini. Sampai jumpa!")
             break
