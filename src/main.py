@@ -96,39 +96,19 @@ def main_menu():
 
         elif (pilihan == '6'):
             print("\nAnda memilih Genetic Algorithm.")
-            try:
-                # Menerima input variasi jumlah populasi
-                print("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100)")
-                population_input = input("Variasi populasi (pisahkan dengan spasi): ").split()
-                populations = [int(x) for x in population_input]
 
-                # Menerima input variasi jumlah iterasi5
-                print("\nMasukkan 3 variasi jumlah iterasi (misalnya: 100 200 300)")
-                iterations_input = input("Variasi iterasi (pisahkan dengan spasi): ").split()
-                iterations = [int(x) for x in iterations_input]
+            print("\n===Pengujian dengan variasi jumlah populasi dan iterasi tetap===")
+            populations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100): ", min_value=2)
+            iteration_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah iterasi tetap (contoh: 100): ", min_value=1)[0]
 
-                # Jalankan pengujian untuk variasi jumlah iterasi dengan populasi tetap
-                print("\nMenjalankan pengujian dengan 3 variasi jumlah populasi dan 3 variasi jumlah iterasi:")
-                for pop_size in populations:
-                    for iterasi in iterations:
-                        print(f"\nMenjalankan GA dengan {pop_size} populasi dan {iterasi} iterasi:")
-                        run_results = []
+            GeneticAlgorithm.run_multiple_tests(populations, [iteration_fixed], is_fixed_iteration=True)
 
-                        # Ulangi setiap kombinasi sebanyak 3 kali
-                        for i in range(3):
-                            max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(
-                                pop_size, iterasi, 0.05
-                            )
-                            run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
-
-                        GeneticAlgorithm.plot_multiple_runs(
-                            run_results, 
-                            max_iteration=iterasi,
-                            title=f'Populasi {pop_size} dan Iterasi {iterasi}'
-                        )
-            except ValueError:
-                print("Input harus berupa angka yang valid!")
-
+            print("\n===Pengujian dengan variasi jumlah iterasi dan populasi tetap===")
+            iterations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah iterasi (contoh: 50 100 150): ", min_value=1)
+            population_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah populasi tetap (contoh: 20): ", min_value=2)[0]
+            
+            GeneticAlgorithm.run_multiple_tests([population_fixed], iterations, is_fixed_iteration=False)
+                
         elif (pilihan == '7'):
             print("\nTerima kasih telah menggunakan program ini. Sampai jumpa!")
             break
@@ -150,7 +130,7 @@ if __name__ == "__main__":
     '--------------------------------------------------------------------'     
     """)
 
-    print("==================================END===================================")
+    print("===========================END===========================")
 
 
     # # Initialize the Magic Cube
