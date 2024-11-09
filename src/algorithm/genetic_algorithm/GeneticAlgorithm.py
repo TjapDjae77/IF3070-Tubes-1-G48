@@ -47,22 +47,45 @@ class GeneticAlgorithm:
 
         self.fitness_scores.sort(key=lambda x: x[1])
 
-    def select_one(self):
+    # def select_one(self):
+    #     inverse_fitness_scores = [1 / fitness for _, fitness in self.fitness_scores]
+    #     total_inverse_fitness = sum(inverse_fitness_scores)
+    #     selection_probabilities = [inverse_fitness / total_inverse_fitness for inverse_fitness in inverse_fitness_scores]
+    #     pick = random.uniform(0, 1)
+    #     cumulative_probability = 0
+    #     for (cube, _), probability in zip(self.fitness_scores, selection_probabilities):
+    #         cumulative_probability += probability
+    #         if pick <= cumulative_probability:
+    #             return cube
+
+    def sus_selection(self):
         inverse_fitness_scores = [1 / fitness for _, fitness in self.fitness_scores]
         total_inverse_fitness = sum(inverse_fitness_scores)
         selection_probabilities = [inverse_fitness / total_inverse_fitness for inverse_fitness in inverse_fitness_scores]
-        pick = random.uniform(0, 1)
-        cumulative_probability = 0
-        for (cube, _), probability in zip(self.fitness_scores, selection_probabilities):
-            cumulative_probability += probability
-            if pick <= cumulative_probability:
-                return cube
+
+        cumulative_probabilities = []
+        cumulative_sum = 0
+        for prob in selection_probabilities:
+            cumulative_sum += prob
+            cumulative_probabilities.append(cumulative_sum)
+
+        distance = 1.0 / 2
+        start_point = random.uniform(0, distance)
+        pointers = [start_point + i * distance for i in range(2)]
+
+        selected_parents = []
+        for pointer in pointers:
+            for i, cumulative_prob in enumerate(cumulative_probabilities):
+                if pointer <= cumulative_prob:
+                    selected_parents.append(self.fitness_scores[i][0])  # Ambil individu yang terpilih
+                    break
+
+        return selected_parents
 
     def selection(self):
-        parent1 = self.select_one()
-        parent2 = self.select_one()
+        parent1, parent2 = self.sus_selection()
         while parent1 == parent2:
-            parent2 = self.select_one()
+            parent2 = self.sus_selection()
 
         return parent1, parent2
 
