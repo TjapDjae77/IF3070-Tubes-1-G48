@@ -1,13 +1,63 @@
 from algorithm.genetic_algorithm.GeneticAlgorithm import GeneticAlgorithm
 from cube.objective_function import ObjectiveFunction
 from algorithm.hill_climbing.SteepestAscent import SteepestAscent
-
+from algorithm.simulated_annealing.SimulatedAnnealing import SimulatedAnnealing
 
 
 def main_menu():
     while True:
+        print("==================================START===================================")
+
+        print("""
+    .------------------------------------------------------------.
+    |███████╗███████╗██╗      █████╗ ███╗   ███╗ █████╗ ████████╗|
+    |██╔════╝██╔════╝██║     ██╔══██╗████╗ ████║██╔══██╗╚══██╔══╝|
+    |███████╗█████╗  ██║     ███████║██╔████╔██║███████║   ██║   |
+    |╚════██║██╔══╝  ██║     ██╔══██║██║╚██╔╝██║██╔══██║   ██║   |
+    |███████║███████╗███████╗██║  ██║██║ ╚═╝ ██║██║  ██║   ██║   |
+    |╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   |
+    |                                                            |
+    |██████╗  █████╗ ████████╗ █████╗ ███╗   ██╗ ██████╗         |
+    |██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗████╗  ██║██╔════╝         |
+    |██║  ██║███████║   ██║   ███████║██╔██╗ ██║██║  ███╗        |
+    |██║  ██║██╔══██║   ██║   ██╔══██║██║╚██╗██║██║   ██║        |
+    |██████╔╝██║  ██║   ██║   ██║  ██║██║ ╚████║╚██████╔╝        |
+    |╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝         |
+    '------------------------------------------------------------'
+        """)
+
+        print("""
+                        .....:::::....              
+                ....::::::::----:::::::....       
+            ...:::::::::-::::::::::::-:::::::::... 
+            .+#*+=--::::::::::--:::::::::::--+*#=. 
+            .+#######*+==-:::::::::::-==**######=. 
+            .+#############*+=---=+**###########=. 
+            .+##################################-. 
+            .=####@%#######################%####-. 
+            .=####%%####%%###########%#####%####-. 
+            .=###########%%#########%%##########-. 
+            .=#################################*:. 
+            .=####%%######################%%###*:. 
+            .=####%@%####%###########%###%@%###*:. 
+          ...=##########%@%#########%%#########*:..
+          ...=#################################*:..
+          ....:-+###########################*=-:...
+          .......:::=*##################*=::.......
+          ............::-+*#########+-:::..........
+              ..............:-++=:.................
+        """)
+
+        print("=====================================================================")
+
         # Tampilkan menu opsi
-        print("\nPilih algoritma yang ingin dicoba:")
+        print("""
+            +-------------------------------+
+            |     PILIH ALGORITMA YANG      |
+            |          INGIN DICOBA         |
+            +-------------------------------+
+        """)
+        # print("\nPilih algoritma yang ingin dicoba:")
         print("1. Steepest Ascent Hill-Climbing")
         print("2. Hill-Climbing with Sideways Move")
         print("3. Random Restart Hill-Climbing")
@@ -29,8 +79,21 @@ def main_menu():
         elif (pilihan == '4'):
             print("\nAlgoritma Stochastic Hill-Climbing belum terimplementasi.")
         elif (pilihan == '5'):
-            #implementasi fungsi run untuk simmulated annealing
-            print("\nAlgoritma Simulated Annealing belum terimplementasi.")
+            print("\nAnda memilih Simulated Annealing")
+            try:
+                # Menerima input nilai yang dibutuhkan
+                starting_tem_input = int(input("Masukkan nilai temperatur awal (misalnya: 1000) : ")) 
+                cooling_rate_input = float(input("Masukkan nilai cooling rate (misalnya: 0.95) : "))
+                minimum_tem_input = float(input("Masukkan nilai temperatur minimal (misalnya: 0.1) : "))
+                print("/n")
+
+                # Menjalankan algoritma sesuai dengan input
+                sa = SimulatedAnnealing(starting_tem_input, cooling_rate_input, minimum_tem_input) 
+                sa.simulatedannealing()  
+
+            except ValueError:
+                print("Input harus berupa angka yang valid!")
+
         elif (pilihan == '6'):
             print("\nAnda memilih Genetic Algorithm.")
 
@@ -56,6 +119,16 @@ def main_menu():
 if __name__ == "__main__":
     main_menu()
     
+    print("""
+    .--------------------------------------------------------------------.
+    |███████╗ █████╗ ██╗   ██╗ ██████╗ ███╗   ██╗ █████╗ ██████╗  █████╗ |
+    |██╔════╝██╔══██╗╚██╗ ██╔╝██╔═══██╗████╗  ██║██╔══██╗██╔══██╗██╔══██╗|
+    |███████╗███████║ ╚████╔╝ ██║   ██║██╔██╗ ██║███████║██████╔╝███████║|
+    |╚════██║██╔══██║  ╚██╔╝  ██║   ██║██║╚██╗██║██╔══██║██╔══██╗██╔══██║|
+    |███████║██║  ██║   ██║   ╚██████╔╝██║ ╚████║██║  ██║██║  ██║██║  ██║|
+    |╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝|
+    '--------------------------------------------------------------------'     
+    """)
 
     print("===========================END===========================")
 
