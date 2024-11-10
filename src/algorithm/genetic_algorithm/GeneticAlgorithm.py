@@ -47,45 +47,43 @@ class GeneticAlgorithm:
 
         self.fitness_scores.sort(key=lambda x: x[1])
 
-    # def select_one(self):
-    #     inverse_fitness_scores = [1 / fitness for _, fitness in self.fitness_scores]
-    #     total_inverse_fitness = sum(inverse_fitness_scores)
-    #     selection_probabilities = [inverse_fitness / total_inverse_fitness for inverse_fitness in inverse_fitness_scores]
-    #     pick = random.uniform(0, 1)
-    #     cumulative_probability = 0
-    #     for (cube, _), probability in zip(self.fitness_scores, selection_probabilities):
-    #         cumulative_probability += probability
-    #         if pick <= cumulative_probability:
+    # def select_one(self, total_fitness):
+    #     pick = random.uniform(0, total_fitness)
+    #     current = 0
+    #     for cube, fitness in self.fitness_scores:
+    #         current += total_fitness - fitness
+    #         if current > pick:
     #             return cube
 
-    def sus_selection(self):
-        inverse_fitness_scores = [1 / fitness for _, fitness in self.fitness_scores]
-        total_inverse_fitness = sum(inverse_fitness_scores)
-        selection_probabilities = [inverse_fitness / total_inverse_fitness for inverse_fitness in inverse_fitness_scores]
-
-        cumulative_probabilities = []
-        cumulative_sum = 0
-        for prob in selection_probabilities:
-            cumulative_sum += prob
-            cumulative_probabilities.append(cumulative_sum)
-
-        distance = 1.0 / 2
-        start_point = random.uniform(0, distance)
-        pointers = [start_point + i * distance for i in range(2)]
-
-        selected_parents = []
-        for pointer in pointers:
-            for i, cumulative_prob in enumerate(cumulative_probabilities):
-                if pointer <= cumulative_prob:
-                    selected_parents.append(self.fitness_scores[i][0])  # Ambil individu yang terpilih
-                    break
-
-        return selected_parents
-
     def selection(self):
-        parent1, parent2 = self.sus_selection()
+        # total_fitness = sum(score[1] for score in self.fitness_scores)
+        # parent1 = self.select_one(total_fitness)
+        # parent2 = self.select_one(total_fitness)
+        # print(f"Parent 1: {ObjectiveFunction(parent1).calculate()}")
+        # print(f"Parent 2: {ObjectiveFunction(parent2).calculate()}")
+        # print("===================================================")
+        # while parent1 ==  parent2:
+        #     parent2 = self.select_one(total_fitness)
+
+        scores = [fitness for _, fitness in self.fitness_scores]
+        total_score = sum(scores)
+
+        if (total_score > 0):
+            weights = [np.exp(-fitness / total_score) for fitness in scores]
+            total_weights = sum(weights)
+            weights = [w / total_weights for w in weights]
+        else:
+            weights = [1 / len(scores)] * len(scores)
+
+        parent1 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
+        parent2 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
+
         while parent1 == parent2:
-            parent2 = self.sus_selection()
+            parent2 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
+
+        print(f"Parent 1: {ObjectiveFunction(parent1).calculate()}")
+        print(f"Parent 2: {ObjectiveFunction(parent2).calculate()}")
+        print("===================================================")
 
         return parent1, parent2
 
@@ -127,11 +125,11 @@ class GeneticAlgorithm:
         offspring2.cube = offspring2_cube
         return offspring1, offspring2
     
-    def adaptive_crossover_pair(self, parent1, parent2, iteration, max_iteration):
-        if (iteration < (max_iteration * 0.5)):
+    def adaptive_crossover_pair(self, parent1, parent2, generation, max_iteration):
+        if (generation < (max_iteration * 0.3)):
             return self.uniform_crossover_pair(parent1, parent2)
-        elif (iteration  < (max_iteration * 0.8)):
-            if (random.random() < 0.7):
+        elif (generation  < (max_iteration * 0.7)):
+            if (random.random() < 0.5):
                 return self.uniform_crossover_pair(parent1, parent2)
             else:
                 return self.layer_crossover_pair(parent1, parent2)
@@ -146,6 +144,7 @@ class GeneticAlgorithm:
         i = random.randint(0, magic_cube.size - 1)
         j = random.randint(0, magic_cube.size - 1)
         magic_cube.cube[i, j, :] = magic_cube.cube[i, j, ::-1]
+        # print(f"Inverted row at layer {i}, row {j}")
         return magic_cube
     
     def scramble_mutation(self, magic_cube):
@@ -153,33 +152,34 @@ class GeneticAlgorithm:
         flat_layer = magic_cube.cube[layer_index].flatten()
         np.random.shuffle(flat_layer)
         magic_cube.cube[layer_index] = flat_layer.reshape(magic_cube.size, magic_cube.size)
+        # print(f"Scrambled layer at index {layer_index}")
         return magic_cube
     
-    def adaptive_mutation(self, magic_cube, iteration, max_iteration):
-        iteration_progress = iteration / max_iteration
-        # Atur mutation rate adaptif berdasarkan progres iterasi
-        if iteration_progress < 0.4:
-            # Di awal hingga pertengahan, meningkatkan mutation rate mendorong eksplorasi
-            if (self.mutation_rate < 0.3):
-                self.mutation_rate = self.mutation_rate * 1.1
-        elif 0.4 <= iteration_progress < 0.8:
-            # Di pertengahan generasi, menurunkan mutation rate untuk menyeimbangkan eksplorasi dengan eksploitasi
-            if (self.mutation_rate > 0.01):
-                self.mutation_rate = self.mutation_rate * 0.98
-        else:
-            # Di akhir generasi, turunkan mutation rate untuk mengeksploitasi solusi terbaik
-            if (self.mutation_rate > 0.05):
-                self.mutation_rate = self.mutation_rate * 0.95
+    def adaptive_mutation(self, magic_cube, generation, max_iteration):
+        # generation_progress = generation / max_iteration
+        # # Atur mutation rate adaptif berdasarkan progres generasi
+        # if generation_progress < 0.4:
+        #     # Di awal hingga pertengahan, gunakan mutation rate dasar
+        #     if (self.mutation_rate < 0.5):
+        #         self.mutation_rate = self.mutation_rate * 1.1
+        # # elif 0.4 <= generation_progress < 0.8:
+        # #     # Di pertengahan generasi, tingkatkan mutation rate untuk mendorong eksplorasi
+        # #     self.mutation_rate = self.mutation_rate * 1.05
+        # else:
+        #     # Di akhir generasi, turunkan mutation rate untuk mengeksploitasi solusi terbaik
+        #     if(self.mutation_rate > 0.1):
+        #         self.mutation_rate = self.mutation_rate * 0.99
 
 
         if (random.random() >= self.mutation_rate):
             return magic_cube
         
-        if (iteration < (max_iteration * 0.3)):
+        if (generation < (max_iteration * 0.3)):
             return self.scramble_mutation(magic_cube)
-        elif (iteration < (max_iteration * 0.7)):
+        elif (generation < (max_iteration * 0.7)):
             return self.inversion_mutation(magic_cube)
         else:
+            # print("SWAP MUTATION")
             return self.swap_mutation(magic_cube)
 
     @staticmethod  
@@ -203,7 +203,7 @@ class GeneticAlgorithm:
                 print(f"Error: {e}\nSilakan masukkan input yang valid.")
     
     @staticmethod
-    def run_multiple_tests(populations, iterations, mutation_rate=0.1, is_fixed_iteration=True):
+    def run_multiple_tests(populations, iterations, mutation_rate=0.05, is_fixed_iteration=True):
         for param in (populations if is_fixed_iteration else iterations):
             run_results = []
             if(is_fixed_iteration):
@@ -230,8 +230,12 @@ class GeneticAlgorithm:
 
                 
     @staticmethod
-    def run_genetic_algorithm(population_size, max_iteration, mutation_rate):
-        ga = GeneticAlgorithm(population_size, max_iteration, mutation_rate)
+    def run_genetic_algorithm(population_size, max_iteration, base_mutation_rate):
+        ga = GeneticAlgorithm(population_size, max_iteration, base_mutation_rate)
+        mutation_rate = base_mutation_rate
+        stagnation_counter = 0
+        max_stagnation = 5
+        last_best_fitness = float('inf')
 
         start_time = time.time()
 
@@ -249,20 +253,58 @@ class GeneticAlgorithm:
 
         for iteration in range(max_iteration):
             new_population = []
-
             num_elite = ga.get_num_elite(iteration)
             new_population = [ga.fitness_scores[i][0] for i in range(num_elite)]
 
-            while len(new_population) < ga.population_size:
+            current_best_fitness = ga.fitness_scores[0][1]
+            if current_best_fitness >= last_best_fitness:
+                stagnation_counter += 1
+            else:
+                stagnation_counter = 0
+            last_best_fitness = current_best_fitness
+
+            if stagnation_counter >= max_stagnation:
+                print(f"Konvergensi dini terdeteksi pada iterasi {iteration}. Meningkatkan laju mutasi.")
+                mutation_rate *= 1.5  # Tingkatkan laju mutasi
+                stagnation_counter = 0  # Reset counter
+            elif mutation_rate > base_mutation_rate:
+                mutation_rate *= 0.95
+
+            for _ in range(population_size // 2):  # Lakukan crossover hingga populasi penuh
+                # Seleksi untuk mendapatkan dua orang tua
                 parent1, parent2 = ga.selection()
-                offspring1, offspring2 = ga.adaptive_crossover_pair(parent1, parent2, iteration, ga.max_iteration)
-                offspring1 = ga.adaptive_mutation(offspring1, iteration, ga.max_iteration)
-                offspring2 = ga.adaptive_mutation(offspring2, iteration, ga.max_iteration)
+
+                # Cetak fitness score dari orang tua yang dipilih (opsional untuk debugging)
+                # print("\nParent 1 Fitness Score:", ObjectiveFunction(parent1).calculate())
+                # print("Parent 2 Fitness Score:", ObjectiveFunction(parent2).calculate())
+                
+                # Menghasilkan keturunan melalui adaptive crossover
+                offspring1, offspring2 = ga.adaptive_crossover_pair(parent1, parent2, iteration, max_iteration)
+
+                # Melakukan adaptive mutation pada offspring
+                offspring1 = ga.adaptive_mutation(offspring1, iteration, max_iteration)
+                offspring2 = ga.adaptive_mutation(offspring2, iteration, max_iteration)
+                
+                # print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
+                # print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
+
+                # Tambahkan offspring ke populasi baru
                 new_population.extend([offspring1, offspring2])
 
-            # Motong kalo kelebihan populasi (karena populasi ganjil)
-            if len(new_population) > ga.population_size:
-                new_population = new_population[:ga.population_size]
+            if len(new_population) < population_size:
+                parent1, parent2 = ga.selection()
+                # print("\nParent 1 Fitness Score (extra):", ObjectiveFunction(parent1).calculate())
+                # print("Parent 2 Fitness Score (extra):", ObjectiveFunction(parent2).calculate())
+
+                # Menghasilkan keturunan melalui adaptive crossover
+                extra_offspring, _ = ga.adaptive_crossover_pair(parent1, parent2, iteration, max_iteration)
+                # Melakukan adaptive mutation pada offspring
+                extra_offspring = ga.adaptive_mutation(extra_offspring, iteration, max_iteration)
+
+                # print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
+
+                # Tambahkan extra_offspring ke populasi baru
+                new_population.append(extra_offspring)
 
             # Ganti populasi lama dengan populasi baru
             ga.population = new_population
@@ -270,7 +312,7 @@ class GeneticAlgorithm:
             # Evaluasi populasi baru
             ga.evaluate_population()
 
-            scores = [fitness for _, fitness in ga.fitness_scores]
+            scores = [score[1] for score in ga.fitness_scores]
             max_score = min(scores)  # Nilai minimum dianggap terbaik
             avg_score = sum(scores) / len(scores)
 
@@ -293,6 +335,17 @@ class GeneticAlgorithm:
         for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
             print(f"Cube {i+1} Fitness Score: {fitness_score}")
 
+        # Plot nilai *objective function* maksimum dan rata-rata
+        # plt.figure(figsize=(10, 6))
+        # plt.plot(range(max_iteration), max_scores_per_iteration, label='Nilai Maksimum', color='red')
+        # plt.plot(range(max_iteration), avg_scores_per_iteration, label='Nilai Rata-rata', color='blue')
+        # plt.xlabel('Iterasi')
+        # plt.ylabel('Nilai Objective Function')
+        # plt.title('Perkembangan Nilai Objective Function per Iterasi')
+        # plt.legend()
+        # plt.grid(True)
+        # plt.show()
+
         return max_scores_per_iteration, avg_scores_per_iteration, duration
     
     @staticmethod
@@ -300,7 +353,7 @@ class GeneticAlgorithm:
         iteration = range(max_iteration)
         num_runs = len(results)
 
-        fig, axes = plt.subplots(1, num_runs, figsize=(18, 6), sharey=True)
+        fig, axes = plt.subplots(1, num_runs, figsize=(15, 5), sharey=True)
         fig.suptitle(title)
 
         for idx, (max_scores, avg_scores, run_label) in enumerate(results):
@@ -308,7 +361,7 @@ class GeneticAlgorithm:
             ax.plot(iteration, max_scores, label='Maksimum', linestyle='--', color='red')
             ax.plot(iteration, avg_scores, label='Rata-rata', color='blue')
             ax.set_title(run_label)
-            ax.set_xlabel('Iterasi')
+            ax.set_xlabel('Generasi')
             if idx == 0:
                 ax.set_ylabel('Nilai Objective Function')
             ax.grid(True, linestyle='--', linewidth=0.5)
