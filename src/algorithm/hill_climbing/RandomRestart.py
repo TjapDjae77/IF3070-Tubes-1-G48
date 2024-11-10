@@ -2,6 +2,7 @@ from cube.magic_cube import MagicCube
 from cube.objective_function import ObjectiveFunction
 from cube.neighbor_state import NeighborState
 import matplotlib.pyplot as plt
+import time
 
 
 class RandomRestart:
@@ -41,35 +42,49 @@ class RandomRestart:
         return current_state, current_value, iterations
 
     def randomRestart(self):
+        iteration_per_start = []
+        final_value_per_start = []
+
         #hill climb pertama
         initial_state = MagicCube()
-        total_iterations = 0
-
-        final_state, final_value, iterations = self.evaluateNeighbor(initial_state)
-        total_iterations += iterations
-
         print(f"\nState Awal:")
         initial_state.display()
+
+        total_iterations = 0
+
+        start_time = time.time()
+
+        final_state, final_value, iterations = self.evaluateNeighbor(initial_state)
+        iteration_per_start.append(iterations)
+        final_value_per_start.append(final_value)
+        total_iterations += iterations
 
         if final_value < self.best_value:
                 self.best_value = final_value
                 self.best_state = final_state
         
-        print(f"\nLangkah pertama - Total Iterations: {iterations}, Iterations Value: {final_value}")
-
         for restart in range(self.max_restarts): #restart pertama
             initial_state = MagicCube()
 
             final_state, final_value, iterations = self.evaluateNeighbor(initial_state)
             total_iterations += iterations
-
-            print(f"Restart ke-{restart+1} - Total Iterations: {iterations}, Iterations Value: {final_value}")
+            iteration_per_start.append(iterations)
+            final_value_per_start.append(final_value)
 
             if final_value < self.best_value:
                 self.best_value = final_value
                 self.best_state = final_state
         
-        return self.best_state, self.best_value
+        elapsed_time = time.time() - start_time
+
+        #print information           
+        for step in range(len(iteration_per_start)):
+            if step == 0:
+                print(f"\nLangkah pertama - Total Iterations: {iteration_per_start[step]}, Iterations Value: {final_value_per_start[step]}")
+            else:
+                print(f"Restart ke-{step} - Total Iterations: {iteration_per_start[step]}, Iterations Value: {final_value_per_start[step]}")
+
+        return elapsed_time
     
     @staticmethod
     def show_plot(objective_values, max_restarts, title="Objective Function Value Progression"):

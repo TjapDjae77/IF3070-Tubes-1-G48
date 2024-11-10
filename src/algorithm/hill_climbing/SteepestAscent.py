@@ -41,7 +41,7 @@ class SteepestAscent:
             else:
                 break
 
-        return self.current_state, self.current_value, total_iteration
+        return total_iteration
     
     @staticmethod
     def plot_progression(objective_values, title="Objective Function Value Progression"):
