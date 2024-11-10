@@ -13,5 +13,4 @@ class MagicCube:
         return np.array(numbers).reshape((self.size, self.size, self.size))
     
     def display(self):
-        print("Current Cube State: ")
         print(self.cube)
