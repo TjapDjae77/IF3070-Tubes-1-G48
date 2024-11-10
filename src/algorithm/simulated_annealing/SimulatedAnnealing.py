@@ -15,7 +15,7 @@ class SimulatedAnnealing:
     
     def initial_state(self):
         # Display state awal kubus
-        print("Initial Cube: ")
+        # print("Initial Cube: ")
         self.magic_cube.display()        
         awal_score = ObjectiveFunction(self.magic_cube).calculate()
         print("Initial Objective Function Score: ", awal_score)
