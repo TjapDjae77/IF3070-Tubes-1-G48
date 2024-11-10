@@ -13,6 +13,24 @@ class SimulatedAnnealing:
         self.minimum_tem = minimum_tem
         self.magic_cube = MagicCube()
     
+    def initial_state(self):
+        # Display state awal kubus
+        # print("Initial Cube: ")
+        self.magic_cube.display()        
+        awal_score = ObjectiveFunction(self.magic_cube).calculate()
+        print("Initial Objective Function Score: ", awal_score)
+
+    def accept_neighbor(self, current_score, neighbor_score, tem):
+        # Penerimaan neighbor
+        if neighbor_score < current_score:
+            return True
+        probability = math.exp((current_score - neighbor_score) / tem)
+        return random.random() < probability   
+    
+    def tracker_data(self, score_seluruh, tem_seluruh, current_score, tem):
+        # Update data tracker untuk plotting
+        score_seluruh.append(current_score)
+        tem_seluruh.append(tem)
 
     def simulatedannealing(self):
         neighbor_generator = NeighborState(self.magic_cube)
@@ -23,6 +41,9 @@ class SimulatedAnnealing:
         current_score = objective_function.calculate()
         tem = self.starting_tem
 
+        # Display data initial state
+        self.initial_state()
+
         # Tracker data
         score_seluruh = [current_score]
         tem_seluruh = [tem]
@@ -31,7 +52,7 @@ class SimulatedAnnealing:
 
         start_time = time.time()
 
-        while tem > self.minimum_tem :
+        while tem > self.minimum_tem:
             # Pemanggilan algoritma neighbor
             neighbor = neighbor_generator.generate_neighbor()
         
@@ -39,28 +60,21 @@ class SimulatedAnnealing:
             objective_function.magic_cube = neighbor
             neighbor_score = objective_function.calculate()
 
-            # Algoritma penerimaan langkah
-            if neighbor_score < current_score :
+            # Pemanggilan lgoritma penerimaan neighbor
+            if self.accept_neighbor(current_score, neighbor_score, tem):
                 current_state = neighbor
                 current_score = neighbor_score
                 stuck_count = 0
-            else :
-                probability = math.exp((current_score - neighbor_score) / tem)
-                if random.random() < probability :
-                    current_state = neighbor
-                    current_score = neighbor_score
-                    stuck_count = 0
-                else :
-                    stuck_count += 1
-            
+            else:
+                stuck_count += 1
+
             # Update tracker data
-            score_seluruh.append(current_score)
-            tem_seluruh.append(tem)
+            self.tracker_data(score_seluruh, tem_seluruh, current_score, tem)
             
-            # Mengembalikan cube kembali
+            # Update state cube
             self.magic_cube.cube = current_state.cube
 
-            # Cooling system
+            # Cooling system dan penghitungan iterasi
             tem *= self.cooling_rate
             iterations += 1
 
@@ -68,18 +82,21 @@ class SimulatedAnnealing:
         end_time = time.time()
         duration = end_time - start_time
 
+        # Pemanggilan algortima print
+        self.final_state(current_score, iterations, duration, stuck_count)
         self.plot_results(score_seluruh, tem_seluruh)
 
-        # Printing data
-        print("\nFinal Cube State:")
-        print(self.magic_cube.cube)
-        print("Nilai Objective Value:", current_score)
-        print("Total Iterasi:", iterations)
-        print("Durasi:", duration)
-        print("Stuck Count Frequency:", stuck_count)
-
-
         return self.magic_cube.cube
+    
+    def final_state(self, current_score, iterations, duration, stuck_count):
+        # Print data final state cube
+        print("\nFinal Cube State: ")
+        print(self.magic_cube.cube)
+        print("Nilai Final Objective Function: ", current_score)
+        print("Total Iterasi: ", iterations)
+        print("Durasi: ", duration)
+        print("Jumlah Stuck: ", stuck_count)
+
 
     def plot_results(self, scores_seluruh, tem_seluruh):
         plt.figure(figsize=(12, 6))

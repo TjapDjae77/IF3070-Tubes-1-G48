@@ -1,13 +1,44 @@
 from algorithm.genetic_algorithm.GeneticAlgorithm import GeneticAlgorithm
 from cube.objective_function import ObjectiveFunction
 from algorithm.hill_climbing.SteepestAscent import SteepestAscent
-
+from algorithm.simulated_annealing.SimulatedAnnealing import SimulatedAnnealing
+from ascii import print_dual_color_ascii, print_loading_animation
 
 
 def main_menu():
     while True:
+        print("==================================START===================================")
+
+        ascii_header = """
+    .------------------------------------------------------------.
+    |███████╗███████╗██╗      █████╗ ███╗   ███╗ █████╗ ████████╗|
+    |██╔════╝██╔════╝██║     ██╔══██╗████╗ ████║██╔══██╗╚══██╔══╝|
+    |███████╗█████╗  ██║     ███████║██╔████╔██║███████║   ██║   |
+    |╚════██║██╔══╝  ██║     ██╔══██║██║╚██╔╝██║██╔══██║   ██║   |
+    |███████║███████╗███████╗██║  ██║██║ ╚═╝ ██║██║  ██║   ██║   |
+    |╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   |
+    |                                                            |
+    |██████╗  █████╗ ████████╗ █████╗ ███╗   ██╗ ██████╗         |
+    |██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗████╗  ██║██╔════╝         |
+    |██║  ██║███████║   ██║   ███████║██╔██╗ ██║██║  ███╗        |
+    |██║  ██║██╔══██║   ██║   ██╔══██║██║╚██╗██║██║   ██║        |
+    |██████╔╝██║  ██║   ██║   ██║  ██║██║ ╚████║╚██████╔╝        |
+    |╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝         |
+    '------------------------------------------------------------'
+        """
+
+        print_dual_color_ascii(ascii_header, 3)
+
+        print("=====================================================================")
+
         # Tampilkan menu opsi
-        print("\nPilih algoritma yang ingin dicoba:")
+        print("""
+            +-------------------------------+
+            |     PILIH ALGORITMA YANG      |
+            |          INGIN DICOBA         |
+            +-------------------------------+
+        """)
+        # print("\nPilih algoritma yang ingin dicoba:")
         print("1. Steepest Ascent Hill-Climbing")
         print("2. Hill-Climbing with Sideways Move")
         print("3. Random Restart Hill-Climbing")
@@ -19,6 +50,28 @@ def main_menu():
         # Menerima input opsi dari pengguna
         pilihan = input("Masukkan nomor opsi (1-7): ")
 
+        cube = """
+                        .....:::::....              
+                ....::::::::----:::::::....       
+            ...:::::::::-::::::::::::-:::::::::... 
+            .+#*+=--::::::::::--:::::::::::--+*#=. 
+            .+#######*+==-:::::::::::-==**######=. 
+            .+#############*+=---=+**###########=. 
+            .+##################################-. 
+            .=####@%#######################%####-. 
+            .=####%%####%%###########%#####%####-. 
+            .=###########%%#########%%##########-. 
+            .=#################################*:. 
+            .=####%%######################%%###*:. 
+            .=####%@%####%###########%###%@%###*:. 
+          ...=##########%@%#########%%#########*:..
+          ...=#################################*:..
+          ....:-+###########################*=-:...
+          .......:::=*##################*=::.......
+          ............::-+*#########+-:::..........
+              ..............:-++=:.................
+        """
+
         # Menentukan aksi berdasarkan input
         if (pilihan == '1'):
             print("\nAlgoritma Steepest Ascent Hill-Climbing belum terimplementasi.")
@@ -29,43 +82,37 @@ def main_menu():
         elif (pilihan == '4'):
             print("\nAlgoritma Stochastic Hill-Climbing belum terimplementasi.")
         elif (pilihan == '5'):
-            #implementasi fungsi run untuk simmulated annealing
-            print("\nAlgoritma Simulated Annealing belum terimplementasi.")
-        elif (pilihan == '6'):
-            print("\nAnda memilih Genetic Algorithm.")
+            print("\nAnda memilih Simulated Annealing")
             try:
-                # Menerima input variasi jumlah populasi
-                print("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100)")
-                population_input = input("Variasi populasi (pisahkan dengan spasi): ").split()
-                populations = [int(x) for x in population_input]
+                # Menerima input nilai yang dibutuhkan
+                starting_tem_input = int(input("Masukkan nilai temperatur awal (misalnya: 1000) : ")) 
+                cooling_rate_input = float(input("Masukkan nilai cooling rate (misalnya: 0.95) : "))
+                minimum_tem_input = float(input("Masukkan nilai temperatur minimal (misalnya: 0.1) : "))
 
-                # Menerima input variasi jumlah iterasi
-                print("\nMasukkan 3 variasi jumlah iterasi (misalnya: 100 200 300)")
-                iterations_input = input("Variasi iterasi (pisahkan dengan spasi): ").split()
-                iterations = [int(x) for x in iterations_input]
+                # Menjalankan algoritma sesuai dengan input
+                print_dual_color_ascii(cube, 2)
+                print_loading_animation("Proses solving magic cube")
+                sa = SimulatedAnnealing(starting_tem_input, cooling_rate_input, minimum_tem_input) 
+                sa.simulatedannealing()  
 
-                # Jalankan pengujian untuk variasi jumlah iterasi dengan populasi tetap
-                print("\nMenjalankan pengujian dengan 3 variasi jumlah populasi dan 3 variasi jumlah iterasi:")
-                for pop_size in populations:
-                    for iterasi in iterations:
-                        print(f"\nMenjalankan GA dengan {pop_size} populasi dan {iterasi} iterasi:")
-                        run_results = []
-
-                        # Ulangi setiap kombinasi sebanyak 3 kali
-                        for i in range(3):
-                            max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(
-                                pop_size, iterasi, 0.05
-                            )
-                            run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
-
-                        GeneticAlgorithm.plot_multiple_runs(
-                            run_results, 
-                            max_iteration=iterasi,
-                            title=f'Populasi {pop_size} dan Iterasi {iterasi}'
-                        )
             except ValueError:
                 print("Input harus berupa angka yang valid!")
 
+        elif (pilihan == '6'):
+            print("\nAnda memilih Genetic Algorithm.")
+
+            print("\n===Pengujian dengan variasi jumlah populasi dan iterasi tetap===")
+            populations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100): ", min_value=2)
+            iteration_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah iterasi tetap (contoh: 100): ", min_value=1)[0]
+
+            GeneticAlgorithm.run_multiple_tests(populations, [iteration_fixed], is_fixed_iteration=True)
+
+            print("\n===Pengujian dengan variasi jumlah iterasi dan populasi tetap===")
+            iterations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah iterasi (contoh: 50 100 150): ", min_value=1)
+            population_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah populasi tetap (contoh: 20): ", min_value=2)[0]
+            
+            GeneticAlgorithm.run_multiple_tests([population_fixed], iterations, is_fixed_iteration=False)
+                
         elif (pilihan == '7'):
             print("\nTerima kasih telah menggunakan program ini. Sampai jumpa!")
             break
@@ -76,8 +123,19 @@ def main_menu():
 if __name__ == "__main__":
     main_menu()
     
+    sayonara = """
+    .--------------------------------------------------------------------.
+    |███████╗ █████╗ ██╗   ██╗ ██████╗ ███╗   ██╗ █████╗ ██████╗  █████╗ |
+    |██╔════╝██╔══██╗╚██╗ ██╔╝██╔═══██╗████╗  ██║██╔══██╗██╔══██╗██╔══██╗|
+    |███████╗███████║ ╚████╔╝ ██║   ██║██╔██╗ ██║███████║██████╔╝███████║|
+    |╚════██║██╔══██║  ╚██╔╝  ██║   ██║██║╚██╗██║██╔══██║██╔══██╗██╔══██║|
+    |███████║██║  ██║   ██║   ╚██████╔╝██║ ╚████║██║  ██║██║  ██║██║  ██║|
+    |╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝|
+    '--------------------------------------------------------------------'     
+    """
+    print_dual_color_ascii(sayonara)
 
-    print("=================END==================")
+    print("===========================END===========================")
 
 
     # # Initialize the Magic Cube

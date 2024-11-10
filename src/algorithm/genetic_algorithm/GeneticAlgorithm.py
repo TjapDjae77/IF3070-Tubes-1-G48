@@ -125,7 +125,7 @@ class GeneticAlgorithm:
             self.mutation_rate = self.mutation_rate * 1.05
         else:
             # Di akhir generasi, turunkan mutation rate untuk mengeksploitasi solusi terbaik
-            self.mutation_rate = self.mutation_rate * 0.8
+            self.mutation_rate = self.mutation_rate * 0.9
 
 
         if (random.random() >= self.mutation_rate):
@@ -138,7 +138,54 @@ class GeneticAlgorithm:
         else:
             # print("SWAP MUTATION")
             return self.swap_mutation(magic_cube)
+
+    @staticmethod  
+    def get_valid_input(prompt, min_value=1, value_type="integer"):
+        while True:
+            try:
+                user_input = input(prompt).split()
+
+                if (value_type == "integer"):
+                    if not all(x.lstrip('-').isdigit() for x in user_input):
+                        raise TypeError("Semua input harus berupa angka bulat (integer).")
+                    
+                values = [int(x) for x in user_input]
+
+                if any(value < min_value for value in values):
+                    raise ValueError(f"Nilai minimal harus {min_value} atau lebih besar.")
+                
+                return values
+            
+            except (ValueError, TypeError) as e:
+                print(f"Error: {e}\nSilakan masukkan input yang valid.")
     
+    @staticmethod
+    def run_multiple_tests(populations, iterations, mutation_rate=0.05, is_fixed_iteration=True):
+        for param in (populations if is_fixed_iteration else iterations):
+            run_results = []
+            if(is_fixed_iteration):
+                param_type = "Populasi"
+                fixed_param = iterations[0]
+            else:
+                param_type = "Iterasi"
+                fixed_param = populations[0]
+
+            print(f"\nMenjalankan GA dengan {param_type} {param} dan {'Iterasi' if is_fixed_iteration else 'Populasi'} {fixed_param}:")
+            for i in range(3):
+                print(f"\nUji ke-{i + 1} untuk {param_type.lower()} {param} dan {'iterasi' if is_fixed_iteration else 'populasi'} {fixed_param}:")
+                if is_fixed_iteration:
+                    max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(param, fixed_param, mutation_rate)
+                else:
+                    max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(fixed_param, param, mutation_rate)
+                run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
+
+            GeneticAlgorithm.plot_multiple_runs(
+                run_results,
+                max_iteration=fixed_param if is_fixed_iteration else param,
+                title=f'{param_type} {param} dan {"Iterasi" if is_fixed_iteration else "Populasi"} {fixed_param}'
+            )
+
+                
     @staticmethod
     def run_genetic_algorithm(population_size, max_iteration, mutation_rate):
         ga = GeneticAlgorithm(population_size, max_iteration, mutation_rate)
