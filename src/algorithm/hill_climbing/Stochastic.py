@@ -27,6 +27,9 @@ class StochasticHillClimbing:
 
     
     def evaluateNeighbor(self):
+        print("\nState Awal:")
+        self.current_state.display()
+        print(f"Nilai Initial Objective Function: {self.current_value}")
         start_time = time.time() 
         
         for _ in range(self.max_iteration):
@@ -42,7 +45,14 @@ class StochasticHillClimbing:
             self.objective_values.append(self.current_value)
 
         end_time = time.time()  
-        total_duration = end_time - start_time 
+        total_duration = end_time - start_time
+
+        print(f"State Akhir: ")
+        self.current_state.display()
+        print(f"Nilai Final Objective Function: {self.current_value}")
+
+        print(f"Jumlah Iterasi: {self.max_iteration}")
+        print(f"Total search duration: {total_duration:.2f} seconds") 
 
         return total_duration
     

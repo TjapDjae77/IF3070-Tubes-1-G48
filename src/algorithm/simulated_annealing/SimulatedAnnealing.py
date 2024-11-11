@@ -15,10 +15,10 @@ class SimulatedAnnealing:
     
     def initial_state(self):
         # Display state awal kubus
-        print("Initial Cube: ")
+        print("State Awal: ")
         self.magic_cube.display()        
         awal_score = ObjectiveFunction(self.magic_cube).calculate()
-        print("Initial Objective Function Score: ", awal_score)
+        print("Nilai Initial Objective Function: ", awal_score)
 
     def accept_neighbor(self, current_score, neighbor_score, tem):
         # Penerimaan neighbor
@@ -93,7 +93,7 @@ class SimulatedAnnealing:
     
     def final_state(self, current_score, iterations, duration, stuck_count):
         # Print data final state cube
-        print("\nFinal Cube State: ")
+        print("\nState Akhir: ")
         print(self.magic_cube.cube)
         print("Nilai Final Objective Function: ", current_score)
         print("Total Iterasi: ", iterations)
