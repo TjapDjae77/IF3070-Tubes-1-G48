@@ -19,8 +19,13 @@ Pada tugas besar ini kami akam mengimplementasikan beberapa algoritma local sear
 - Algoritma Genetic	
 
 # Cara Setup Program
+- Clone repository ini ke komputer yang ingin digunakan
+- Instal semua depedensi yang diperlukan seperti numpy dan matplotlib
 
 # Cara Run Program
+- Buka directory utama project
+- Jalankan file main.py
+- Masukkan input sesuai yang diminta program
 
 # Pembagian Tugas Tiap Anggota Kelompok
 | No. | Nama                  | NIM       | Kegiatan                                                                                                           |
