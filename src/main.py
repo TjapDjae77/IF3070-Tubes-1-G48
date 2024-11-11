@@ -149,17 +149,20 @@ def main_menu():
         elif (pilihan == '6'):
             print("\nAnda memilih Genetic Algorithm.")
 
-            print("\n===Pengujian dengan variasi jumlah populasi dan iterasi tetap===")
-            populations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah populasi (misalnya: 30 50 100): ", min_value=2)
-            iteration_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah iterasi tetap (contoh: 100): ", min_value=1)[0]
+            # Meminta input jumlah populasi dan iterasi menggunakan fungsi get_valid_input
+            population_size = GeneticAlgorithm.get_valid_input(
+                prompt="Masukkan jumlah populasi (contoh: 50, minimal 2): ",
+                min_value=2,  # Populasi minimal 2 agar proses berjalan
+                value_type="integer"
+            )[0]  # Mengambil elemen pertama dari list hasil get_valid_input
 
-            GeneticAlgorithm.run_multiple_tests(populations, [iteration_fixed], is_fixed_iteration=True)
+            max_iteration = GeneticAlgorithm.get_valid_input(
+                prompt="Masukkan jumlah iterasi (contoh: 100, minimal 1): ",
+                min_value=1,  # Iterasi minimal 1
+                value_type="integer"
+            )[0]  # Mengambil elemen pertama dari list hasil get_valid_input
 
-            print("\n===Pengujian dengan variasi jumlah iterasi dan populasi tetap===")
-            iterations = GeneticAlgorithm.get_valid_input("\nMasukkan 3 variasi jumlah iterasi (contoh: 50 100 150): ", min_value=1)
-            population_fixed = GeneticAlgorithm.get_valid_input("Masukkan jumlah populasi tetap (contoh: 20): ", min_value=2)[0]
-            
-            GeneticAlgorithm.run_multiple_tests([population_fixed], iterations, is_fixed_iteration=False)
+            GeneticAlgorithm.run(population_size, max_iteration)
                 
         elif (pilihan == '7'):
             print("\nTerima kasih telah menggunakan program ini. Sampai jumpa!")
