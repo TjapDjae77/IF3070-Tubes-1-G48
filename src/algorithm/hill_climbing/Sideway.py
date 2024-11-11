@@ -1,62 +1,84 @@
 from cube.magic_cube import MagicCube
 from cube.objective_function import ObjectiveFunction
 from cube.neighbor_state import NeighborState
+import matplotlib.pyplot as plt
+import time
 
 class SidewayHillClimbing:
-    def __init__(self, max_sideway):  
+    def __init__(self, max_sideways_moves):
         self.current_state = MagicCube()
-        self.max_sideway = max_sideway  
-    
+        self.current_value = ObjectiveFunction(self.current_state).calculate()
+        self.max_sideways_moves = max_sideways_moves
+        self.iterations = 0
+        self.objective_values = []  
+
     def searchbestNeighbor(self):
         best_neighbor = None
-        best_neighbor_value = 999999
+        best_neighbor_value = 99999
 
-        while True:
-            neighbor = NeighborState(self.current_state).generate_neighbor()  
-            neighbor_value = ObjectiveFunction(neighbor).calculate()  
+        for _ in range(100): 
+            neighbor = NeighborState(self.current_state).generate_neighbor()
+            neighbor_value = ObjectiveFunction(neighbor).calculate()
             
             if neighbor_value < best_neighbor_value:
-                best_neighbor_value = neighbor_value
                 best_neighbor = neighbor
-            else:
-                break
-        
+                best_neighbor_value = neighbor_value
+
         return best_neighbor
-    
+
     def evaluateNeighbor(self):
-        current_value = ObjectiveFunction(self.current_state).calculate()
-        sideways_moves_remaining = self.max_sideway
-        total_iterations = 0
+        sideways_moves = 0
+        start_time = time.time() 
 
         while True:
             best_neighbor = self.searchbestNeighbor()
             best_neighbor_value = ObjectiveFunction(best_neighbor).calculate()
-            total_iterations += 1
+            self.iterations += 1
 
-            # Change `self.current_value` to `current_value` here
-            if best_neighbor_value < current_value:
+            self.objective_values.append(self.current_value) 
+
+            if best_neighbor_value < self.current_value:
                 self.current_state = best_neighbor
-                current_value = best_neighbor_value
-                sideways_moves_remaining = self.max_sideway  # Reset sideways count after an improvement
+                self.current_value = best_neighbor_value
+                sideways_moves = 0 # RESET
 
-            elif best_neighbor_value == current_value:
-                if sideways_moves_remaining > 0:
-                    self.current_state = best_neighbor
-                    sideways_moves_remaining -= 1
-                    print(f"Sideways move: {self.max_sideway-sideways_moves_remaining}")
-                else:
-                    print("Reached maximum sideways moves, terminating.")
-                    break
+            elif best_neighbor_value == self.current_value and sideways_moves < self.max_sideways_moves:
+                self.current_state = best_neighbor
+                sideways_moves += 1
 
             else:
-                print("No better neighbor found, terminating.")
                 break
 
-            print(f"Iteration {total_iterations} - Current Cube State:")
-            self.current_state.display()
-            print(f"Current score (objective value): {current_value}")
+        self.objective_values.append(self.current_value)
 
-        final_score = current_value
-        print(f"Final score (objective value): {final_score}")
+        end_time = time.time() 
+        total_duration = end_time - start_time
 
-        return self.current_state
+        return total_duration
+
+    @staticmethod
+    def plot_multiple_runs(results, title="Pebandingan Objective Function dan Iterasi"):
+        fig, axes = plt.subplots(1, len(results), figsize=(18, 6), sharey=True)
+
+        if len(results) == 1:
+            axes = [axes]
+
+        fig.suptitle(title)
+
+        for idx, (objective_values, run_label, total_duration) in enumerate(results):
+            ax = axes[idx]
+            iterations = range(len(objective_values))
+
+            ax.plot(iterations, objective_values, label='Objective Value', color='blue')
+            ax.set_title(run_label)
+            ax.set_xlabel('Iteration')
+            if idx == 0:
+                ax.set_ylabel('Objective Function Value')
+            ax.grid(True, linestyle='--', linewidth=0.5)
+            ax.legend()
+
+            ax.text(0.5, 0.95, f"Total Duration: {total_duration:.6f} s", 
+                    transform=ax.transAxes, ha="center", va="top", fontsize=12, color='red')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        plt.show()
