@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 class SidewayHillClimbing:
-    def __init__(self, max_sideways_moves=100):
+    def __init__(self, max_sideways_moves):
         self.current_state = MagicCube()
         self.current_value = ObjectiveFunction(self.current_state).calculate()
         self.max_sideways_moves = max_sideways_moves
@@ -16,7 +16,7 @@ class SidewayHillClimbing:
         best_neighbor = None
         best_neighbor_value = 99999
 
-        for _ in range(25): 
+        for _ in range(100): 
             neighbor = NeighborState(self.current_state).generate_neighbor()
             neighbor_value = ObjectiveFunction(neighbor).calculate()
             
@@ -47,7 +47,6 @@ class SidewayHillClimbing:
                 sideways_moves += 1
 
             else:
-                print("Tidak ada neighbor dengan value yang lebih baik.")
                 break
 
         self.objective_values.append(self.current_value)

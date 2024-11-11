@@ -112,7 +112,7 @@ def main_menu():
         elif (pilihan == '4'):
             print("\nAnda memilih Algoritma Stochastic Hill-Climbing")
             try:
-                maximum_iteration = int(input("Variasi maksimal iterasi: "))
+                maximum_iteration = int(input("Jumlah maksimal iterasi: "))
 
                 print(f"\nPengujian dengan maksimal {maximum_iteration} iterasi:")
 
@@ -134,8 +134,8 @@ def main_menu():
                 shc.current_state.display()
                 print(f"Nilai Objective Akhir: {shc.current_value}")
 
-                print(f"Total search duration: {total_duration:.6f} seconds")
                 print(f"Jumlah Iterasi: {shc.max_iteration}")
+                print(f"Total search duration: {total_duration:.6f} seconds")
 
                 StochasticHillClimbing.plot_multiple_runs(
                     [(objective_values, f'Percobaan dengan {maximum_iteration} iterasi', total_duration)],

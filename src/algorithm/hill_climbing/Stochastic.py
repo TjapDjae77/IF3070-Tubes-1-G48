@@ -43,7 +43,6 @@ class StochasticHillClimbing:
 
         end_time = time.time()  
         total_duration = end_time - start_time 
-        print(f"Total search duration: {total_duration:.6f} seconds")
 
         return total_duration
     
