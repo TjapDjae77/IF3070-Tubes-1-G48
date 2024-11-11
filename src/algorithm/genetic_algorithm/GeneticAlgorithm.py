@@ -14,13 +14,8 @@ class GeneticAlgorithm:
         self.population = [MagicCube() for _ in range(population_size)]
         self.fitness_scores = []
 
-    def display_population(self):
-        for i, cube in enumerate(self.population):
-            print(f"Cube {i+1}:")
-            cube.display()
-            print("\n")
-
     def get_num_elite(self, iteration):
+        ''' Mendapatkan jumlah individu elite di populasi '''
         if (self.population_size <= 5):
             return 0  
         elif (self.population_size <= 10):
@@ -39,6 +34,7 @@ class GeneticAlgorithm:
                 return 3  
 
     def evaluate_population(self):
+        ''' Fungsi untuk mengevaluasi seluruh populasi dan di-sorting menaik '''
         self.fitness_scores = []
 
         for cube in self.population:
@@ -47,143 +43,154 @@ class GeneticAlgorithm:
 
         self.fitness_scores.sort(key=lambda x: x[1])
 
-    # def select_one(self, total_fitness):
-    #     pick = random.uniform(0, total_fitness)
-    #     current = 0
-    #     for cube, fitness in self.fitness_scores:
-    #         current += total_fitness - fitness
-    #         if current > pick:
-    #             return cube
+    def tournament_selection(self, tournament_size):
+        ''' Konsep seleksi menggunakan tournament selection, yaitu 
+        mengambil sampel sebanyak tournament size secara random untuk diambil 2 individu terbaik sebagai parent'''
+        participants = random.sample(self.fitness_scores, tournament_size)
+        # Mengurutkan peserta berdasarkan fitness secara ascending
+        sorted_participants = sorted(participants, key=lambda x: x[1])
+        # Mengembalikan dua individu terbaik
+        return sorted_participants[0][0], sorted_participants[1][0]
 
     def selection(self):
-        # total_fitness = sum(score[1] for score in self.fitness_scores)
-        # parent1 = self.select_one(total_fitness)
-        # parent2 = self.select_one(total_fitness)
-        # print(f"Parent 1: {ObjectiveFunction(parent1).calculate()}")
-        # print(f"Parent 2: {ObjectiveFunction(parent2).calculate()}")
-        # print("===================================================")
-        # while parent1 ==  parent2:
-        #     parent2 = self.select_one(total_fitness)
+        ''' Seleksi individu untuk dijadikan parent dan memastikan parent bukanlah individu yang sama '''
+        tournament_size = 2 if self.population_size < 20 else 5
 
-        scores = [fitness for _, fitness in self.fitness_scores]
-        total_score = sum(scores)
-
-        if (total_score > 0):
-            weights = [np.exp(-fitness / total_score) for fitness in scores]
-            total_weights = sum(weights)
-            weights = [w / total_weights for w in weights]
-        else:
-            weights = [1 / len(scores)] * len(scores)
-
-        parent1 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
-        parent2 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
-
+        parent1, parent2 = self.tournament_selection(tournament_size=tournament_size)
+        
         while parent1 == parent2:
-            parent2 = random.choices(self.fitness_scores, weights=weights, k=1)[0][0]
-
-        print(f"Parent 1: {ObjectiveFunction(parent1).calculate()}")
-        print(f"Parent 2: {ObjectiveFunction(parent2).calculate()}")
-        print("===================================================")
+            parent2 = self.tournament_selection(tournament_size=5)
 
         return parent1, parent2
 
-    def layer_crossover_pair(self, parent1, parent2):
-        offspring1_cube = np.zeros_like(parent1.cube)
-        offspring2_cube = np.zeros_like(parent2.cube)
+    def partial_layer_crossover(self, parent1, parent2):
+        ''' Teknik crossover yang digunakan adalah menggabungkan konsep 
+        layer preservation dengan unique element filling '''
+        # Membuat matriks kosong untuk child
+        child1_cube = np.zeros_like(parent1.cube)
+        child2_cube = np.zeros_like(parent2.cube)
 
-        for i in range(parent1.size):
-            if (i % 2 == 0):
-                offspring1_cube[i] = parent1.cube[i]
-                offspring2_cube[i] = parent2.cube[i]
-            else:
-                offspring1_cube[i] = parent2.cube[i]
-                offspring2_cube[i] = parent1.cube[i]
-
-        offspring1 = MagicCube(size=parent1.size)
-        offspring2 = MagicCube(size=parent2.size)
-        offspring1.cube = offspring1_cube
-        offspring2.cube = offspring2_cube
-        return offspring1, offspring2
-
-    def uniform_crossover_pair(self, parent1, parent2):
-        offspring1_cube = np.zeros_like(parent1.cube)
-        offspring2_cube = np.zeros_like(parent2.cube)
-
-        for i in range(parent1.size):
-            for j in range(parent1.size):
-                for k in range(parent1.size):
-                    if (random.random() < 0.5):
-                        offspring1_cube[i, j, k] = parent1.cube[i, j, k]
-                        offspring2_cube[i, j, k] = parent2.cube[i, j, k]
-                    else:
-                        offspring1_cube[i, j, k] = parent2.cube[i, j, k]
-                        offspring2_cube[i, j, k] = parent1.cube[i, j, k]
+        # Isi 3 layer pertama child 1 dengan elemen dari parent 1
+        child1_cube[:3] = parent1.cube[:3]
         
-        offspring1 = MagicCube(size=parent1.size)
-        offspring2 = MagicCube(size=parent2.size)
-        offspring1.cube = offspring1_cube
-        offspring2.cube = offspring2_cube
-        return offspring1, offspring2
-    
-    def adaptive_crossover_pair(self, parent1, parent2, generation, max_iteration):
-        if (generation < (max_iteration * 0.3)):
-            return self.uniform_crossover_pair(parent1, parent2)
-        elif (generation  < (max_iteration * 0.7)):
-            if (random.random() < 0.5):
-                return self.uniform_crossover_pair(parent1, parent2)
-            else:
-                return self.layer_crossover_pair(parent1, parent2)
-        else:
-            return self.layer_crossover_pair(parent1, parent2)
+        # Isi 3 layer terakhir child 2 dengan elemen dari parent 2
+        child2_cube[-3:] = parent2.cube[-3:]
+
+        # Buat set elemen yang sudah digunakan di child 1 dan child 2 serta menghilangkan bilangan nol di dalam set
+        used_elements_1 = set(child1_cube.flatten()) - {0}
+        used_elements_2 = set(child2_cube.flatten()) - {0}
+
+        # Isi layer yang tersisa di child 1 dengan elemen unik dari parent 2
+        for i in range(parent2.size):
+            if (len(used_elements_1) == parent1.size**3):
+                break
+            for j in range(parent2.size):
+                if (len(used_elements_1) == parent1.size**3):
+                    break
+                for k in range(parent2.size):
+                    if (len(used_elements_1) == parent1.size**3):
+                        break
+                    element = parent2.cube[i, j, k]
+                    if element not in used_elements_1:
+                        for x in range(3, parent1.size):
+                            for y in range(parent1.size):
+                                for z in range(parent1.size):
+                                    if child1_cube[x, y, z] == 0:
+                                        child1_cube[x, y, z] = element
+                                        used_elements_1.add(element)
+                                        break
+                                if element in used_elements_1:
+                                    break
+                            if element in used_elements_1:
+                                break
+
+        # Isi layer yang tersisa di child 2 dengan elemen unik dari parent 1
+        for i in range(parent1.size):
+            if (len(used_elements_2) == parent2.size**3):
+                break
+            for j in range(parent1.size):
+                if (len(used_elements_2) == parent2.size**3):
+                    break
+                for k in range(parent1.size):
+                    if (len(used_elements_2) == parent2.size**3):
+                        break
+                    element = parent1.cube[i, j, k]
+                    if element not in used_elements_2:
+                        for x in range(parent2.size - 3):
+                            for y in range(parent2.size):
+                                for z in range(parent2.size):
+                                    if child2_cube[x, y, z] == 0:
+                                        child2_cube[x, y, z] = element
+                                        used_elements_2.add(element)
+                                        break
+                                if element in used_elements_2:
+                                    break
+                            if element in used_elements_2:
+                                break
+
+        # Membuat objek MagicCube baru untuk child
+        child1 = MagicCube(size=parent1.size)
+        child2 = MagicCube(size=parent2.size)
+        child1.cube = child1_cube
+        child2.cube = child2_cube
+        return child1, child2
         
     def swap_mutation(self, magic_cube):
+        ''' Swap mutation dilakukan dengan cara yang sama seperti mencari neighbor '''
         neighbor_state = NeighborState(magic_cube)
         return neighbor_state.generate_neighbor()
-
-    def inversion_mutation(self, magic_cube):
-        i = random.randint(0, magic_cube.size - 1)
-        j = random.randint(0, magic_cube.size - 1)
-        magic_cube.cube[i, j, :] = magic_cube.cube[i, j, ::-1]
-        # print(f"Inverted row at layer {i}, row {j}")
-        return magic_cube
     
     def scramble_mutation(self, magic_cube):
+        ''' Scramble mutation dilakukan dengan cara mencari index layer cube secara acak lalu bilangan-bilangan pada layer tersebut akan dishuffle '''
         layer_index = random.randint(0, magic_cube.size - 1)
         flat_layer = magic_cube.cube[layer_index].flatten()
         np.random.shuffle(flat_layer)
         magic_cube.cube[layer_index] = flat_layer.reshape(magic_cube.size, magic_cube.size)
-        # print(f"Scrambled layer at index {layer_index}")
         return magic_cube
     
-    def adaptive_mutation(self, magic_cube, generation, max_iteration):
-        # generation_progress = generation / max_iteration
-        # # Atur mutation rate adaptif berdasarkan progres generasi
-        # if generation_progress < 0.4:
-        #     # Di awal hingga pertengahan, gunakan mutation rate dasar
-        #     if (self.mutation_rate < 0.5):
-        #         self.mutation_rate = self.mutation_rate * 1.1
-        # # elif 0.4 <= generation_progress < 0.8:
-        # #     # Di pertengahan generasi, tingkatkan mutation rate untuk mendorong eksplorasi
-        # #     self.mutation_rate = self.mutation_rate * 1.05
-        # else:
-        #     # Di akhir generasi, turunkan mutation rate untuk mengeksploitasi solusi terbaik
-        #     if(self.mutation_rate > 0.1):
-        #         self.mutation_rate = self.mutation_rate * 0.99
+    def adaptive_mutation(self, magic_cube, iteration, max_iteration):
+        ''' Adaptive mutation akan memilih antara scramble mutation atau swap mutation berdasarkan progress iteration '''
+        iteration_progress = iteration / max_iteration
+        # Atur mutation rate adaptif berdasarkan progres generasi
+        if iteration_progress < 0.5:
+            # Di awal hingga pertengahan, mutation rate akan ditingkatkan hingga 50% dengan tujuan eksplorasi yang kuat
+            if (self.mutation_rate < 0.5):
+                self.mutation_rate = self.mutation_rate * 1.1
+        else: # 0.5 <= iteration_progress <= 1
+            # Di pertengahan hingga akhir, turunkan mutation rate untuk mengeksploitasi solusi terbaik
+            if(self.mutation_rate > 0.1):
+                self.mutation_rate = self.mutation_rate * 0.99
 
-
+        # Terdapat probabilitas mutation rate yang jika tidak dipenuhi maka tidak akan dilakukan mutation
         if (random.random() >= self.mutation_rate):
             return magic_cube
+        # Untuk 30% dari total iterasi, akan dilakukan scramble mutation
+        if (iteration < (max_iteration * 0.3)):
+            mutated_cube = self.scramble_mutation(magic_cube)
+        else: # 70% sisanya akan dilakukan swap mutation
+            mutated_cube = self.swap_mutation(magic_cube)
+
+        # Memastikan bahwa jika ada yang duplikat fitnessnya maka akan dilakukan swap mutation hingga semua fitness pada populasi bersifat unik
+        while self.is_duplicate_fitness(mutated_cube):
+            mutated_cube = self.swap_mutation(mutated_cube)
         
-        if (generation < (max_iteration * 0.3)):
-            return self.scramble_mutation(magic_cube)
-        elif (generation < (max_iteration * 0.7)):
-            return self.inversion_mutation(magic_cube)
-        else:
-            # print("SWAP MUTATION")
-            return self.swap_mutation(magic_cube)
+        return mutated_cube
+
+    def is_duplicate_fitness(self, cube):
+        ''' Fungsi untuk memeriksa apakah ada duplikat fitness pada populasi '''
+        # Menghitung fitness score dari individu yang di-check
+        fitness_score = ObjectiveFunction(cube).calculate()
+        
+        # Memeriksa apakah fitness score ini sudah ada di populasi
+        for _, existing_fitness in self.fitness_scores:
+            if existing_fitness == fitness_score:
+                return True
+        return False
 
     @staticmethod  
     def get_valid_input(prompt, min_value=1, value_type="integer"):
+        ''' Fungsi untuk memastikan input dari pengguna itu harus berupa integer dan 
+        harus memiliki nilai lebih dari sama dengan min_value '''
         while True:
             try:
                 user_input = input(prompt).split()
@@ -201,112 +208,44 @@ class GeneticAlgorithm:
             
             except (ValueError, TypeError) as e:
                 print(f"Error: {e}\nSilakan masukkan input yang valid.")
-    
-    @staticmethod
-    def run_multiple_tests(populations, iterations, mutation_rate=0.05, is_fixed_iteration=True):
-        for param in (populations if is_fixed_iteration else iterations):
-            run_results = []
-            if(is_fixed_iteration):
-                param_type = "Populasi"
-                fixed_param = iterations[0]
-            else:
-                param_type = "Iterasi"
-                fixed_param = populations[0]
-
-            print(f"\nMenjalankan GA dengan {param_type} {param} dan {'Iterasi' if is_fixed_iteration else 'Populasi'} {fixed_param}:")
-            for i in range(3):
-                print(f"\nUji ke-{i + 1} untuk {param_type.lower()} {param} dan {'iterasi' if is_fixed_iteration else 'populasi'} {fixed_param}:")
-                if is_fixed_iteration:
-                    max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(param, fixed_param, mutation_rate)
-                else:
-                    max_scores, avg_scores, duration = GeneticAlgorithm.run_genetic_algorithm(fixed_param, param, mutation_rate)
-                run_results.append((max_scores, avg_scores, f'Run ke-{i+1}'))
-
-            GeneticAlgorithm.plot_multiple_runs(
-                run_results,
-                max_iteration=fixed_param if is_fixed_iteration else param,
-                title=f'{param_type} {param} dan {"Iterasi" if is_fixed_iteration else "Populasi"} {fixed_param}'
-            )
-
                 
     @staticmethod
-    def run_genetic_algorithm(population_size, max_iteration, base_mutation_rate):
-        ga = GeneticAlgorithm(population_size, max_iteration, base_mutation_rate)
-        mutation_rate = base_mutation_rate
-        stagnation_counter = 0
-        max_stagnation = 5
-        last_best_fitness = float('inf')
-
+    def run(population_size, max_iteration, mutation_rate=0.3):
+        ''' Fungsi untuk menjalankan Genetic Algorithm, GA berikut menggunakan konsep elitisme,
+          yaitu menyimpan elemen terbaik pada suatu iterasi untuk diletakkan pada generasi berikutnya  '''
+        ga = GeneticAlgorithm(population_size, max_iteration, mutation_rate)
+        # Memulai timer
         start_time = time.time()
-
+        # Menyiapkan array untuk nilai maksimum dan rata-rata score per iterasi
         max_scores_per_iteration = []
         avg_scores_per_iteration = []
-        
+        # Mengevaluasi populasi
         ga.evaluate_population()
-
-        print("Initial Fitness Scores for Entire Population:")
-        for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
-            print(f"Cube {i+1} Fitness Score: {fitness_score}")
-        
+        # Menampilkan state awal populasi (best fitness)
         print("\nState awal populasi (menampilkan individu pertama):")
         ga.population[0].display()
 
         for iteration in range(max_iteration):
+            # Populasi baru dikosongkan ulang setiap iterasi baru
             new_population = []
+            # Mendapatkan jumlah elemen elite
             num_elite = ga.get_num_elite(iteration)
+            # Memasukkkan elemen elite ke dalam populasi baru
             new_population = [ga.fitness_scores[i][0] for i in range(num_elite)]
 
-            current_best_fitness = ga.fitness_scores[0][1]
-            if current_best_fitness >= last_best_fitness:
-                stagnation_counter += 1
-            else:
-                stagnation_counter = 0
-            last_best_fitness = current_best_fitness
-
-            if stagnation_counter >= max_stagnation:
-                print(f"Konvergensi dini terdeteksi pada iterasi {iteration}. Meningkatkan laju mutasi.")
-                mutation_rate *= 1.5  # Tingkatkan laju mutasi
-                stagnation_counter = 0  # Reset counter
-            elif mutation_rate > base_mutation_rate:
-                mutation_rate *= 0.95
-
-            for _ in range(population_size // 2):  # Lakukan crossover hingga populasi penuh
-                # Seleksi untuk mendapatkan dua orang tua
+            while len(new_population) < ga.population_size:
+                # Melakukan seleksi, crossover, mutation dan dimasukkan ke dalam array new population
                 parent1, parent2 = ga.selection()
+                child1, child2 = ga.partial_layer_crossover(parent1, parent2)
+                child1 = ga.adaptive_mutation(child1, iteration, ga.max_iteration)
+                child2 = ga.adaptive_mutation(child2, iteration, ga.max_iteration)
+                new_population.extend([child1, child2])
 
-                # Cetak fitness score dari orang tua yang dipilih (opsional untuk debugging)
-                # print("\nParent 1 Fitness Score:", ObjectiveFunction(parent1).calculate())
-                # print("Parent 2 Fitness Score:", ObjectiveFunction(parent2).calculate())
-                
-                # Menghasilkan keturunan melalui adaptive crossover
-                offspring1, offspring2 = ga.adaptive_crossover_pair(parent1, parent2, iteration, max_iteration)
+            # Memotong kalo kelebihan populasi (karena jumlah populasi yang harus dimasukkan ke new population itu ganjil)
+            if len(new_population) > ga.population_size:
+                new_population = new_population[:ga.population_size]
 
-                # Melakukan adaptive mutation pada offspring
-                offspring1 = ga.adaptive_mutation(offspring1, iteration, max_iteration)
-                offspring2 = ga.adaptive_mutation(offspring2, iteration, max_iteration)
-                
-                # print("\nOffspring 1:", ObjectiveFunction(offspring1).calculate())
-                # print("Offspring 2:", ObjectiveFunction(offspring2).calculate())
-
-                # Tambahkan offspring ke populasi baru
-                new_population.extend([offspring1, offspring2])
-
-            if len(new_population) < population_size:
-                parent1, parent2 = ga.selection()
-                # print("\nParent 1 Fitness Score (extra):", ObjectiveFunction(parent1).calculate())
-                # print("Parent 2 Fitness Score (extra):", ObjectiveFunction(parent2).calculate())
-
-                # Menghasilkan keturunan melalui adaptive crossover
-                extra_offspring, _ = ga.adaptive_crossover_pair(parent1, parent2, iteration, max_iteration)
-                # Melakukan adaptive mutation pada offspring
-                extra_offspring = ga.adaptive_mutation(extra_offspring, iteration, max_iteration)
-
-                # print("\nExtra Offspring:", ObjectiveFunction(extra_offspring).calculate())
-
-                # Tambahkan extra_offspring ke populasi baru
-                new_population.append(extra_offspring)
-
-            # Ganti populasi lama dengan populasi baru
+            # Mengganti populasi lama dengan populasi baru
             ga.population = new_population
             
             # Evaluasi populasi baru
@@ -315,57 +254,35 @@ class GeneticAlgorithm:
             scores = [score[1] for score in ga.fitness_scores]
             max_score = min(scores)  # Nilai minimum dianggap terbaik
             avg_score = sum(scores) / len(scores)
-
+            # Menyimpan score maksimum dan rata-rata ke dalam array
             max_scores_per_iteration.append(max_score)
             avg_scores_per_iteration.append(avg_score)
-            
+
+        # Mengakhiri timer    
         end_time = time.time()
+        # Menghitung durasi
         duration = end_time - start_time
+        # Menampilkan state akhir populasi (best fitness)
         print("\nState akhir populasi (menampilkan individu terbaik):")
         ga.fitness_scores[0][0].display()
-
         best_fitness_score = ga.fitness_scores[0][1]
+        # Menampilkan Objective Function akhir, populasi, iterasi, dan durasi pencarian
         print(f"\nNilai objective function akhir yang dicapai: {best_fitness_score}")
         print(f"Jumlah populasi: {population_size}")
         print(f"Banyak iterasi: {max_iteration}")
         print(f"Durasi proses pencarian: {duration:.2f} detik")
-
-        # Cetak fitness score dari generasi baru
-        print("\nFitness Scores for New Population:")
-        for i, (cube, fitness_score) in enumerate(ga.fitness_scores):
-            print(f"Cube {i+1} Fitness Score: {fitness_score}")
-
-        # Plot nilai *objective function* maksimum dan rata-rata
-        # plt.figure(figsize=(10, 6))
-        # plt.plot(range(max_iteration), max_scores_per_iteration, label='Nilai Maksimum', color='red')
-        # plt.plot(range(max_iteration), avg_scores_per_iteration, label='Nilai Rata-rata', color='blue')
-        # plt.xlabel('Iterasi')
-        # plt.ylabel('Nilai Objective Function')
-        # plt.title('Perkembangan Nilai Objective Function per Iterasi')
-        # plt.legend()
-        # plt.grid(True)
-        # plt.show()
-
-        return max_scores_per_iteration, avg_scores_per_iteration, duration
+        # Menjalankan fungsi plotting hasil iterasi
+        GeneticAlgorithm.plot_result(max_scores_per_iteration, avg_scores_per_iteration, max_iteration, population_size)
     
     @staticmethod
-    def plot_multiple_runs(results, max_iteration, title="Perkembangan Nilai Objective Function"):
-        iteration = range(max_iteration)
-        num_runs = len(results)
-
-        fig, axes = plt.subplots(1, num_runs, figsize=(15, 5), sharey=True)
-        fig.suptitle(title)
-
-        for idx, (max_scores, avg_scores, run_label) in enumerate(results):
-            ax = axes[idx]
-            ax.plot(iteration, max_scores, label='Maksimum', linestyle='--', color='red')
-            ax.plot(iteration, avg_scores, label='Rata-rata', color='blue')
-            ax.set_title(run_label)
-            ax.set_xlabel('Generasi')
-            if idx == 0:
-                ax.set_ylabel('Nilai Objective Function')
-            ax.grid(True, linestyle='--', linewidth=0.5)
-            ax.legend()
-
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
+    def plot_result(max_scores, avg_scores, max_iteration, population_size):
+        ''' Fungsi untuk melakukan plotting hasil pencarian genetik '''
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(max_iteration), max_scores, label='Nilai Maksimum', linestyle='--', color='red')
+        plt.plot(range(max_iteration), avg_scores, label='Nilai Rata-rata', color='blue')
+        plt.xlabel('Iterasi')
+        plt.ylabel('Nilai Objective Function')
+        plt.title(f'Perkembangan Nilai Objective Function\nPopulasi: {population_size} dan Iterasi: {max_iteration}')
+        plt.legend()
+        plt.grid(True)
         plt.show()
