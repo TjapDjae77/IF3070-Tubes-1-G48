@@ -5,8 +5,6 @@ from algorithm.simulated_annealing.SimulatedAnnealing import SimulatedAnnealing
 from algorithm.hill_climbing.Sideway import SidewayHillClimbing
 from algorithm.hill_climbing.Stochastic import StochasticHillClimbing
 from ascii import print_dual_color_ascii, print_loading_animation
-import time
-
 
 def main_menu():
     print("==================================START===================================")
@@ -96,6 +94,7 @@ def main_menu():
                 print_loading_animation("Proses solving magic cube")
                                 
                 shc = SidewayHillClimbing(max_sideways_moves=ms)
+                shc.evaluateNeighbor()
                             
             except ValueError:
                 print("Input harus berupa angka yang valid!")
@@ -126,6 +125,7 @@ def main_menu():
                 print_loading_animation("Proses solving magic cube")
 
                 shc = StochasticHillClimbing(max_iteration=maximum_iteration)
+                shc.evaluateNeighbor()
                 
             except ValueError:
                 print("Input harus berupa angka yang valid!")
