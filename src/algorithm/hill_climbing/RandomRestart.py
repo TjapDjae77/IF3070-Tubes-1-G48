@@ -35,22 +35,23 @@ class RandomRestart:
             
             #comparing
             if best_neighbor_value < current_value:
-                self.current_state = best_neighbor
+                current_state = best_neighbor
                 current_value = best_neighbor_value
                 iterations += 1
             else:
                 break
             self.objective_values.append(current_value)
+
         return current_state, current_value, iterations
 
     def randomRestart(self):
         iteration_per_start = []
-        final_value_per_start = []
 
         #hill climb pertama
         initial_state = MagicCube()
         print(f"\nState Awal:")
         initial_state.display()
+        print(f"\nNilai objective awal: {ObjectiveFunction(initial_state).calculate()}")
 
         total_iterations = 0
 
@@ -58,7 +59,6 @@ class RandomRestart:
 
         final_state, final_value, iterations = self.evaluateNeighbor(initial_state)
         iteration_per_start.append(iterations)
-        final_value_per_start.append(final_value)
         total_iterations += iterations
 
         if final_value < self.best_value:
@@ -71,7 +71,6 @@ class RandomRestart:
             final_state, final_value, iterations = self.evaluateNeighbor(initial_state)
             total_iterations += iterations
             iteration_per_start.append(iterations)
-            final_value_per_start.append(final_value)
 
             if final_value < self.best_value:
                 self.best_value = final_value
@@ -82,9 +81,9 @@ class RandomRestart:
         #print information           
         for step in range(len(iteration_per_start)):
             if step == 0:
-                print(f"\nLangkah pertama - Total Iterations: {iteration_per_start[step]}, Iterations Value: {final_value_per_start[step]}")
+                print(f"\nLangkah pertama - Total Iterations: {iteration_per_start[step]}")
             else:
-                print(f"Restart ke-{step} - Total Iterations: {iteration_per_start[step]}, Iterations Value: {final_value_per_start[step]}")
+                print(f"Restart ke-{step} - Total Iterations: {iteration_per_start[step]}")
 
         print(f"\nState Akhir:")
         self.best_state.display()
