@@ -15,7 +15,7 @@ class SimulatedAnnealing:
     
     def initial_state(self):
         # Display state awal kubus
-        # print("Initial Cube: ")
+        print("Initial Cube: ")
         self.magic_cube.display()        
         awal_score = ObjectiveFunction(self.magic_cube).calculate()
         print("Initial Objective Function Score: ", awal_score)
@@ -65,6 +65,7 @@ class SimulatedAnnealing:
                 current_state = neighbor
                 current_score = neighbor_score
                 stuck_count = 0
+                iterations += 1
             else:
                 stuck_count += 1
 
@@ -76,7 +77,6 @@ class SimulatedAnnealing:
 
             # Cooling system dan penghitungan iterasi
             tem *= self.cooling_rate
-            iterations += 1
 
         # Penghitungan durasi
         end_time = time.time()
@@ -94,7 +94,7 @@ class SimulatedAnnealing:
         print(self.magic_cube.cube)
         print("Nilai Final Objective Function: ", current_score)
         print("Total Iterasi: ", iterations)
-        print("Durasi: ", duration)
+        print(f"Durasi: {duration:.2f}")
         print("Jumlah Stuck: ", stuck_count)
 
 
