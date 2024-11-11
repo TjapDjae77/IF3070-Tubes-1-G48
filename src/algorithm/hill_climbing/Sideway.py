@@ -92,8 +92,5 @@ class SidewayHillClimbing:
             ax.grid(True, linestyle='--', linewidth=0.5)
             ax.legend()
 
-            ax.text(0.5, 0.95, f"Total Duration: {total_duration:.6f} s", 
-                    transform=ax.transAxes, ha="center", va="top", fontsize=12, color='red')
-
         plt.tight_layout(rect=[0, 0, 1, 0.95])
         plt.show()
