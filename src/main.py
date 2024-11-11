@@ -116,19 +116,7 @@ def main_menu():
                                 
                 results = []
                 shc = SidewayHillClimbing(max_sideways_moves=ms)
-
-                print("\nState Awal:")
-                shc.current_state.display()
-                print(f"Nilai Objective Awal: {shc.current_value}")
-
                 total_duration = shc.evaluateNeighbor()
-
-                print(f"State Akhir:")
-                shc.current_state.display()
-                print(f"Nilai Objective Akhir: {shc.current_value}")
-
-                print(f"Total search duration: {total_duration:.6f} seconds")
-                print(f"Jumlah Iterasi: {shc.iterations}")
 
                 results.append((shc.objective_values, f"Jumlah Sideway Moves: {ms}", total_duration))
                 SidewayHillClimbing.plot_multiple_runs(results, title="Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Sideways Hill-Climbing")
@@ -172,23 +160,8 @@ def main_menu():
                 shc = StochasticHillClimbing(max_iteration=maximum_iteration)
                 total_duration = shc.evaluateNeighbor()
 
-                objective_values = shc.objective_values
-
-                print("\nState Awal:")
-                shc.current_state.display()
-                print(f"Nilai Objective Awal: {shc.current_value}")
-
-                total_duration = shc.evaluateNeighbor()
-
-                print(f"State Akhir:")
-                shc.current_state.display()
-                print(f"Nilai Objective Akhir: {shc.current_value}")
-
-                print(f"Jumlah Iterasi: {shc.max_iteration}")
-                print(f"Total search duration: {total_duration:.6f} seconds")
-
                 StochasticHillClimbing.plot_multiple_runs(
-                    [(objective_values, f'Percobaan dengan {maximum_iteration} iterasi', total_duration)],
+                    [(shc.objective_values, f'Percobaan dengan {maximum_iteration} iterasi', total_duration)],
                     max_iteration=maximum_iteration,
                     title=f'Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Stochastic Hill-Climbing'
                 )

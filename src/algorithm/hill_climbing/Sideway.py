@@ -27,6 +27,10 @@ class SidewayHillClimbing:
         return best_neighbor
 
     def evaluateNeighbor(self):
+        print("\nState Awal:")
+        self.current_state.display()
+        print(f"Nilai Initial Objective Function: {self.current_value}")
+        
         sideways_moves = 0
         start_time = time.time() 
 
@@ -53,6 +57,13 @@ class SidewayHillClimbing:
 
         end_time = time.time() 
         total_duration = end_time - start_time
+
+        print(f"State Akhir: ")
+        self.current_state.display()
+        print(f"Nilai Final Objective Function: {self.current_value}")
+
+        print(f"Jumlah Iterasi: {self.iterations}")
+        print(f"Total search duration: {total_duration:.6f} seconds")
 
         return total_duration
 
