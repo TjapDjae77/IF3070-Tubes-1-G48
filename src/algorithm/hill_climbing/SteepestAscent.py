@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 from cube.magic_cube import MagicCube
 from cube.objective_function import ObjectiveFunction
 from cube.neighbor_state import NeighborState
+import time
 
 
 class SteepestAscent:
-    def __init__(self, magic_cube):
-        self.current_state = magic_cube
+    def __init__(self):
+        self.current_state = MagicCube()
         self.current_value = 999999
         self.objective_values = []  
 
@@ -21,14 +22,17 @@ class SteepestAscent:
             if neighbor_value < best_neighbor_value:
                 best_neighbor_value = neighbor_value
                 best_neighbor = neighbor
-            else:
-                break
 
         return best_neighbor, best_neighbor_value
     
     def evaluateNeighbor(self):
         total_iteration = 0
+        
+        print(f"\nState Awal:")
+        self.current_state.display()
 
+        start_time = time.time()
+        
         while True:
             best_neighbor, best_neighbor_value = self.searchbestNeighbor()
 
@@ -40,11 +44,23 @@ class SteepestAscent:
                 self.objective_values.append(self.current_value)
             else:
                 break
+        
+        execute_time = time.time() - start_time
+        
+        print(f"\nState Akhir:")
+        self.current_state.display()
 
-        return total_iteration
-    
+        print(f"\nNilai objective akhir: {self.current_value}")
+        print(f"Total iterasi: {total_iteration}")
+        print(f"Waktu yang dibutuhkan: {execute_time:.2f} detik\n")
+
+        self.show_plot(
+                objective_values=self.objective_values,
+                title=f'Perkembangan Nilai Objective Function\nWaktu: {execute_time:.2f} detik'
+            )
+
     @staticmethod
-    def plot_progression(objective_values, title="Objective Function Value Progression"):
+    def show_plot(objective_values, title="Perkembangan Nilai Objective Function"):
         plt.figure(figsize=(10, 6))
         plt.plot(objective_values, label='Objective Value', color='blue')
         plt.title(title)
