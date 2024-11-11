@@ -1,10 +1,10 @@
-from cube.magic_cube import MagicCube
-from cube.objective_function import ObjectiveFunction
-from cube.neighbor_state import NeighborState
 import math
 import random
 import time
 import matplotlib.pyplot as plt
+from cube.magic_cube import MagicCube
+from cube.objective_function import ObjectiveFunction
+from cube.neighbor_state import NeighborState
 
 class SimulatedAnnealing:
     def __init__(self, starting_tem, cooling_rate, minimum_tem):
@@ -23,14 +23,15 @@ class SimulatedAnnealing:
     def accept_neighbor(self, current_score, neighbor_score, tem):
         # Penerimaan neighbor
         if neighbor_score < current_score:
-            return True
+            return True, 1.0  # Probabilitas penuh jika lebih baik
         probability = math.exp((current_score - neighbor_score) / tem)
-        return random.random() < probability   
+        return random.random() < probability, probability   
     
-    def tracker_data(self, score_seluruh, tem_seluruh, current_score, tem):
+    def tracker_data(self, score_seluruh, prob_seluruh, current_score, tem, probability):
         # Update data tracker untuk plotting
         score_seluruh.append(current_score)
-        tem_seluruh.append(tem)
+        # tem_seluruh.append(tem)
+        prob_seluruh.append(probability)
 
     def simulatedannealing(self):
         neighbor_generator = NeighborState(self.magic_cube)
@@ -47,6 +48,7 @@ class SimulatedAnnealing:
         # Tracker data
         score_seluruh = [current_score]
         tem_seluruh = [tem]
+        prob_seluruh = []
         iterations = 0
         stuck_count = 0
 
@@ -60,31 +62,32 @@ class SimulatedAnnealing:
             objective_function.magic_cube = neighbor
             neighbor_score = objective_function.calculate()
 
-            # Pemanggilan lgoritma penerimaan neighbor
-            if self.accept_neighbor(current_score, neighbor_score, tem):
+            # Pemanggilan algoritma penerimaan neighbor
+            accepted, probability = self.accept_neighbor(current_score, neighbor_score, tem)
+            if accepted:
                 current_state = neighbor
                 current_score = neighbor_score
                 stuck_count = 0
+                iterations += 1
             else:
                 stuck_count += 1
 
             # Update tracker data
-            self.tracker_data(score_seluruh, tem_seluruh, current_score, tem)
+            self.tracker_data(score_seluruh, prob_seluruh, current_score, tem, probability)
             
             # Update state cube
             self.magic_cube.cube = current_state.cube
 
             # Cooling system dan penghitungan iterasi
             tem *= self.cooling_rate
-            iterations += 1
 
         # Penghitungan durasi
         end_time = time.time()
         duration = end_time - start_time
 
-        # Pemanggilan algortima print
+        # Pemanggilan algoritma print
         self.final_state(current_score, iterations, duration, stuck_count)
-        self.plot_results(score_seluruh, tem_seluruh)
+        self.plot_results(score_seluruh, prob_seluruh)
 
         return self.magic_cube.cube
     
@@ -94,11 +97,10 @@ class SimulatedAnnealing:
         print(self.magic_cube.cube)
         print("Nilai Final Objective Function: ", current_score)
         print("Total Iterasi: ", iterations)
-        print("Durasi: ", duration)
+        print(f"Durasi: {duration:.2f}")
         print("Jumlah Stuck: ", stuck_count)
 
-
-    def plot_results(self, scores_seluruh, tem_seluruh):
+    def plot_results(self, scores_seluruh, prob_seluruh):
         plt.figure(figsize=(12, 6))
 
         # Plot objective function terhadap iterations
@@ -109,13 +111,13 @@ class SimulatedAnnealing:
         plt.title('Objective Function terhadap Iterasi')
         plt.legend()
 
-        # Plot temperature terhadap iterations
+        # Plot probability terhadap iterations
         plt.subplot(1, 2, 2)
-        plt.plot(tem_seluruh, label='Temperature', color='orange')
+        plt.plot(prob_seluruh, label='Probability', color='green')
         plt.xlabel('Iterations')
-        plt.ylabel('Temperature')
-        plt.title('Temperatur terhadap Iterasi')
+        plt.ylabel('Acceptance Probability')
+        plt.title('Probability terhadap Iterasi')
         plt.legend()
 
         plt.tight_layout()
-        plt.show()       
+        plt.show()
