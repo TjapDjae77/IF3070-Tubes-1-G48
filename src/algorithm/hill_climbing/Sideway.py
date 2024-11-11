@@ -63,7 +63,7 @@ class SidewayHillClimbing:
         print(f"Nilai Final Objective Function: {self.current_value}")
 
         print(f"Jumlah Iterasi: {self.iterations}")
-        print(f"Total search duration: {total_duration:.6f} seconds")
+        print(f"Total search duration: {total_duration:.2f} seconds")
 
         return total_duration
 
