@@ -1,6 +1,4 @@
 from algorithm.genetic_algorithm.GeneticAlgorithm import GeneticAlgorithm
-from cube.objective_function import ObjectiveFunction
-from cube.magic_cube import MagicCube
 from algorithm.hill_climbing.SteepestAscent import SteepestAscent
 from algorithm.hill_climbing.RandomRestart import RandomRestart
 from algorithm.simulated_annealing.SimulatedAnnealing import SimulatedAnnealing
@@ -83,28 +81,8 @@ def main_menu():
             print("\nAnda memilih Steepest Ascent Hill-Climbing.")
             print("\nMemulai Steepest Ascent Hill Climbing")
     
-            initial_cube = MagicCube()
-            sa = SteepestAscent(magic_cube=initial_cube)
-            
-            print(f"\nState Awal:")
-            sa.current_state.display()
-            
-            start_time = time.time()
-
-            total_iteration = sa.evaluateNeighbor()
-
-            elapsed_time = time.time() - start_time
-
-            print(f"\nState Akhir:")
-            sa.current_state.display()
-            print(f"\nFinal Objective Value: {sa.current_value}")
-            print(f"Total Iterasi: {total_iteration}")
-            print(f"Waktu: {elapsed_time:.2f} detik")
-
-            SteepestAscent.plot_progression(
-                objective_values=sa.objective_values,
-                title=f'Perkembangan Nilai Objective Function\nWaktu: {elapsed_time:.2f} detik'
-            )
+            sa = SteepestAscent()
+            sa.evaluateNeighbor()
 
         elif (pilihan == '2'):
             print("\nAnda memilih Hill-Climbing with Sideways Move")
@@ -125,21 +103,11 @@ def main_menu():
                 print("\nMasukkan jumlah maksimal restart (misalnya: 10):")
                 max_restart = int(input("Jumlah maksimal restart: "))
 
-                print(f"\nMemulai Random Restart Hill Climbing dengan maksimak restart {max_restart}")
+                print(f"\nMemulai Random Restart Hill Climbing dengan maksimal restart {max_restart}")
                 
                 rr = RandomRestart(max_restarts=max_restart)
-                elapsed_time = rr.randomRestart()
+                rr.randomRestart()
 
-                print(f"\nState Akhir:")
-                rr.best_state.display()
-                print(f"\nNilai objective akhir: {rr.best_value}")
-                print(f"Waktu yang dibutuhkan: {elapsed_time:.2f} detik\n")
-
-                RandomRestart.show_plot(
-                    objective_values=rr.objective_values,
-                    max_restarts=len(rr.objective_values),
-                    title=f'Perkembangan Nilai Objective Function (Maks Restart = {max_restart})\nWaktu: {elapsed_time:.2f} detik'
-                )
             except ValueError:
                 print("Input harus berupa angka yang valid!")
 
