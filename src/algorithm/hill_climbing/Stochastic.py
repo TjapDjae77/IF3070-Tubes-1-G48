@@ -54,7 +54,11 @@ class StochasticHillClimbing:
         print(f"Jumlah Iterasi: {self.max_iteration}")
         print(f"Total search duration: {total_duration:.2f} seconds") 
 
-        return total_duration
+        StochasticHillClimbing.plot_multiple_runs(
+            [(self.objective_values, f'Percobaan dengan {self.max_iteration} iterasi', total_duration)],
+            max_iteration=self.max_iteration,
+            title=f'Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Stochastic Hill-Climbing'
+            )
     
     @staticmethod
     def plot_multiple_runs(results, max_iteration, title="Perkembangan Nilai Objective Function"):

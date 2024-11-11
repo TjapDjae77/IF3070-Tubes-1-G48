@@ -65,7 +65,11 @@ class SidewayHillClimbing:
         print(f"Jumlah Iterasi: {self.iterations}")
         print(f"Total search duration: {total_duration:.2f} seconds")
 
-        return total_duration
+        results = []
+
+        results.append((self.objective_values, f"Jumlah Sideway Moves: {sideways_moves}", total_duration))
+        SidewayHillClimbing.plot_multiple_runs(results, title="Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Sideways Hill-Climbing")
+
 
     @staticmethod
     def plot_multiple_runs(results, title="Pebandingan Objective Function dan Iterasi"):
