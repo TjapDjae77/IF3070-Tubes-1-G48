@@ -34,7 +34,7 @@ class GeneticAlgorithm:
                 return 3  
 
     def evaluate_population(self):
-        ''' Fungsi untuk mengevaluasi seluruh populasi dan di-sorting menaik '''
+        ''' Prosedur untuk mengevaluasi seluruh populasi dan di-sorting menaik '''
         self.fitness_scores = []
 
         for cube in self.population:
