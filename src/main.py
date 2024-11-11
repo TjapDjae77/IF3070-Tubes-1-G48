@@ -115,13 +115,8 @@ def main_menu():
                 print_dual_color_ascii(cube, 2)
                 print_loading_animation("Proses solving magic cube")
                                 
-                results = []
                 shc = SidewayHillClimbing(max_sideways_moves=ms)
-                total_duration = shc.evaluateNeighbor()
-
-                results.append((shc.objective_values, f"Jumlah Sideway Moves: {ms}", total_duration))
-                SidewayHillClimbing.plot_multiple_runs(results, title="Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Sideways Hill-Climbing")
-            
+                            
             except ValueError:
                 print("Input harus berupa angka yang valid!")
         elif (pilihan == '3'):
@@ -159,13 +154,7 @@ def main_menu():
                 print_loading_animation("Proses solving magic cube")
 
                 shc = StochasticHillClimbing(max_iteration=maximum_iteration)
-                total_duration = shc.evaluateNeighbor()
-
-                StochasticHillClimbing.plot_multiple_runs(
-                    [(shc.objective_values, f'Percobaan dengan {maximum_iteration} iterasi', total_duration)],
-                    max_iteration=maximum_iteration,
-                    title=f'Perbandingan objective function terhadap banyak iterasi yang telah dilewati menggunakan Stochastic Hill-Climbing'
-                )
+                
             except ValueError:
                 print("Input harus berupa angka yang valid!")
         elif (pilihan == '5'):
