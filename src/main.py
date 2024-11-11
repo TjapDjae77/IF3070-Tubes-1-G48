@@ -79,7 +79,9 @@ def main_menu():
         # Menentukan aksi berdasarkan input
         if (pilihan == '1'):
             print("\nAnda memilih Steepest Ascent Hill-Climbing.")
-            print("\nMemulai Steepest Ascent Hill Climbing")
+
+            print_dual_color_ascii(cube, 2)
+            print_loading_animation("Proses solving magic cube")
     
             sa = SteepestAscent()
             sa.evaluateNeighbor()
@@ -103,8 +105,10 @@ def main_menu():
                 print("\nMasukkan jumlah maksimal restart (misalnya: 10):")
                 max_restart = int(input("Jumlah maksimal restart: "))
 
-                print(f"\nMemulai Random Restart Hill Climbing dengan maksimal restart {max_restart}")
-                
+                print(f"\nMenjalankan Random Restart Hill Climbing dengan maksimal restart {max_restart}")
+                print_dual_color_ascii(cube, 2)
+                print_loading_animation("Proses solving magic cube")
+
                 rr = RandomRestart(max_restarts=max_restart)
                 rr.randomRestart()
 
